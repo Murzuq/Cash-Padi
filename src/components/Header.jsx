@@ -64,6 +64,7 @@ const Header = () => {
               <Link
                 to="/login"
                 className="text-green-400 hover:text-green-300 font-semibold transition duration-300"
+                onClick={handleLogin}
               >
                 Login
               </Link>
