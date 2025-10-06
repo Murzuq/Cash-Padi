@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import TransferPage from "./pages/TransferPage";
 import AirtimePage from "./pages/AirtimePage";
@@ -7,21 +7,23 @@ import BillsPage from "./pages/BillsPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import Layout from "./components/Layout";
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "transfer", element: <TransferPage /> },
+      { path: "airtime", element: <AirtimePage /> },
+      { path: "data", element: <DataPage /> },
+      { path: "bills", element: <BillsPage /> },
+      { path: "history", element: <TransactionHistoryPage /> },
+    ],
+  },
+]);
+
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="transfer" element={<TransferPage />} />
-          <Route path="airtime" element={<AirtimePage />} />
-          <Route path="data" element={<DataPage />} />
-          <Route path="bills" element={<BillsPage />} />
-          <Route path="history" element={<TransactionHistoryPage />} />
-        </Route>
-      </Routes>
-    </Router>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
