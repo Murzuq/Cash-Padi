@@ -72,12 +72,15 @@ const HomePage = () => {
                 </div>
                 <span className="text-xs sm:text-sm font-medium">Pay Bill</span>
               </button>
-              <button className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50">
+              <Link
+                to="/airtime"
+                className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
+              >
                 <div className="p-3 bg-green-100 rounded-full">
                   <FaMobileAlt className="text-lg sm:text-xl text-green-700" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium">Airtime</span>
-              </button>
+              </Link>
               <button className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50">
                 <div className="p-3 bg-green-100 rounded-full">
                   <FaWifi className="text-lg sm:text-xl text-green-700" />
