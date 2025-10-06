@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   FaMicrophone,
   FaRegMoneyBillAlt,
@@ -56,12 +57,15 @@ const HomePage = () => {
           {/* Quick Actions */}
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
-              <button className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50">
+              <Link
+                to="/transfer"
+                className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
+              >
                 <div className="p-3 bg-green-100 rounded-full">
                   <FaPaperPlane className="text-lg sm:text-xl text-green-700" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium">Transfer</span>
-              </button>
+              </Link>
               <button className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50">
                 <div className="p-3 bg-green-100 rounded-full">
                   <FaFileInvoiceDollar className="text-lg sm:text-xl text-green-700" />
