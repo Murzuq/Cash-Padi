@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaArrowLeft, FaMobileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import PinModal from "../components/PinModal";
 // Mock network providers
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 
@@ -11,6 +12,8 @@ const AirtimePage = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const handlePurchase = (e) => {
     e.preventDefault();
@@ -19,17 +22,27 @@ const AirtimePage = () => {
       return;
     }
     setError("");
-    // Here you would handle the airtime purchase logic, e.g., show a confirmation modal, require a PIN, and make an API call.
-    alert(
-      `Airtime purchase of ₦${amount} for ${phoneNumber} (${network}) initiated.`
-    );
-    navigate("/"); // Navigate back home after purchase
+    setIsPinModalOpen(true);
+  };
+
+  const handleConfirmPurchase = async (pin) => {
+    console.log("PIN entered:", pin);
+    setIsConfirming(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    setIsConfirming(false);
+    setIsPinModalOpen(false);
+
+    alert(`Airtime purchase of ₦${amount} for ${phoneNumber} was successful!`);
+    navigate("/");
   };
 
   const isFormValid = network && phoneNumber.length === 11 && amount > 0;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <>
       <header className="bg-white shadow-sm p-4 flex items-center">
         <button
           onClick={() => navigate(-1)}
@@ -123,7 +136,24 @@ const AirtimePage = () => {
           </button>
         </form>
       </main>
-    </div>
+
+      <PinModal
+        isOpen={isPinModalOpen}
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={handleConfirmPurchase}
+        title="Confirm Airtime"
+        isConfirming={isConfirming}
+        details={
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500">You are buying</p>
+            <p className="text-2xl font-bold text-gray-800">
+              ₦{Number(amount).toLocaleString()} Airtime
+            </p>
+            <p className="text-sm text-gray-500">for {phoneNumber}</p>
+          </div>
+        }
+      />
+    </>
   );
 };
 

@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import PinModal from "../components/PinModal";
 // Mock data for billers
 const billers = {
   Electricity: [
@@ -40,6 +41,8 @@ const BillsPage = () => {
   const [billerId, setBillerId] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [amount, setAmount] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const availableBillers = useMemo(
     () => (category ? billers[category] : []),
@@ -48,17 +51,28 @@ const BillsPage = () => {
 
   const handlePayment = (e) => {
     e.preventDefault();
+    setIsPinModalOpen(true);
+  };
+
+  const handleConfirmPayment = async (pin) => {
+    console.log("PIN entered:", pin);
+    setIsConfirming(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    setIsConfirming(false);
+    setIsPinModalOpen(false);
+
     const biller = getBillerDetails(billerId);
-    alert(
-      `Payment of ₦${amount} for ${biller.name} (Customer ID: ${customerId}) initiated.`
-    );
+    alert(`Payment of ₦${amount} for ${biller.name} was successful!`);
     navigate("/");
   };
 
   const isFormValid = category && billerId && customerId && amount > 0;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <>
       <header className="bg-white shadow-sm p-4 flex items-center">
         <button
           onClick={() => navigate(-1)}
@@ -177,7 +191,26 @@ const BillsPage = () => {
           </button>
         </form>
       </main>
-    </div>
+
+      <PinModal
+        isOpen={isPinModalOpen}
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={handleConfirmPayment}
+        title="Confirm Bill Payment"
+        isConfirming={isConfirming}
+        details={
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500">You are paying</p>
+            <p className="text-2xl font-bold text-gray-800">
+              ₦{Number(amount).toLocaleString()}
+            </p>
+            <p className="text-sm text-gray-500">
+              to {getBillerDetails(billerId)?.name}
+            </p>
+          </div>
+        }
+      />
+    </>
   );
 };
 

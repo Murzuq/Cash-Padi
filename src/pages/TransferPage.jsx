@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FaArrowLeft, FaUniversity, FaUserCheck } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import PinModal from "../components/PinModal";
 // Mock bank list
 const banks = [
   "Access Bank",
@@ -45,6 +46,8 @@ const TransferPage = () => {
   const [recipientName, setRecipientName] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   useEffect(() => {
     const verify = async () => {
@@ -79,13 +82,25 @@ const TransferPage = () => {
   const handleTransfer = (e) => {
     e.preventDefault();
     // Here you would handle the transfer logic, e.g., show a confirmation modal, require a PIN, and make an API call.
-    alert(
-      `Transfer of ₦${amount} to ${recipientName} (${accountNumber} - ${bank}) initiated with narration: "${narration}"`
-    );
+    setIsPinModalOpen(true);
+  };
+
+  const handleConfirmTransfer = async (pin) => {
+    console.log("PIN entered:", pin);
+    setIsConfirming(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    setIsConfirming(false);
+    setIsPinModalOpen(false);
+
+    alert(`Transfer of ₦${amount} to ${recipientName} was successful!`);
+    navigate("/");
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <>
       <header className="bg-white shadow-sm p-4 flex items-center">
         <button
           onClick={() => navigate(-1)}
@@ -205,7 +220,24 @@ const TransferPage = () => {
           </button>
         </form>
       </main>
-    </div>
+
+      <PinModal
+        isOpen={isPinModalOpen}
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={handleConfirmTransfer}
+        title="Confirm Transfer"
+        isConfirming={isConfirming}
+        details={
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500">You are sending</p>
+            <p className="text-2xl font-bold text-gray-800">
+              ₦{Number(amount).toLocaleString()}
+            </p>
+            <p className="text-sm text-gray-500">to {recipientName}</p>
+          </div>
+        }
+      />
+    </>
   );
 };
 

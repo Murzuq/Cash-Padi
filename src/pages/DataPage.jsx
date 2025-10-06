@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { FaArrowLeft, FaMobileAlt, FaWifi } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import PinModal from "../components/PinModal";
 // Mock network providers and their data plans
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 const dataPlans = {
@@ -37,6 +38,8 @@ const DataPage = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [planId, setPlanId] = useState("");
   const [error, setError] = useState("");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const selectedPlan = useMemo(() => {
     if (!network || !planId) return null;
@@ -50,17 +53,29 @@ const DataPage = () => {
       return;
     }
     setError("");
-    // Here you would handle the data purchase logic
+    setIsPinModalOpen(true);
+  };
+
+  const handleConfirmPurchase = async (pin) => {
+    console.log("PIN entered:", pin);
+    setIsConfirming(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    setIsConfirming(false);
+    setIsPinModalOpen(false);
+
     alert(
-      `Data purchase of ${selectedPlan.label} for ₦${selectedPlan.amount} to ${phoneNumber} (${network}) initiated.`
+      `Data purchase of ${selectedPlan.label} for ${phoneNumber} was successful!`
     );
-    navigate("/"); // Navigate back home after purchase
+    navigate("/");
   };
 
   const isFormValid = network && phoneNumber.length === 11 && planId;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <>
       <header className="bg-white shadow-sm p-4 flex items-center">
         <button
           onClick={() => navigate(-1)}
@@ -169,7 +184,26 @@ const DataPage = () => {
           </button>
         </form>
       </main>
-    </div>
+
+      <PinModal
+        isOpen={isPinModalOpen}
+        onClose={() => setIsPinModalOpen(false)}
+        onConfirm={handleConfirmPurchase}
+        title="Confirm Data Purchase"
+        isConfirming={isConfirming}
+        details={
+          selectedPlan && (
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500">You are buying</p>
+              <p className="text-xl font-bold text-gray-800">
+                {selectedPlan.label}
+              </p>
+              <p className="text-sm text-gray-500">for {phoneNumber}</p>
+            </div>
+          )
+        }
+      />
+    </>
   );
 };
 
