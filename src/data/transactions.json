@@ -3,24 +3,173 @@
     "id": 1,
     "title": "To Sikiru",
     "type": "Transfer",
-    "amount": -15000
+    "amount": -15000,
+    "date": "2024-05-20T10:30:00Z",
+    "status": "Completed",
+    "description": "Payment for goods"
   },
   {
     "id": 2,
     "title": "Market Sales",
     "type": "Deposit",
-    "amount": 25000
+    "amount": 25000,
+    "date": "2024-05-20T09:15:00Z",
+    "status": "Completed",
+    "description": "Cash deposit from morning sales"
   },
   {
     "id": 3,
     "title": "Electricity Bill",
     "type": "Utilities",
-    "amount": -8500
+    "amount": -8500,
+    "date": "2024-05-19T14:00:00Z",
+    "status": "Completed",
+    "description": "IKEDC May Bill",
+    "details": {
+      "biller": "Ikeja Electric (IKEDC)",
+      "customerId": "4501238476"
+    }
   },
   {
     "id": 4,
     "title": "From Murzuq",
     "type": "Deposit",
-    "amount": 58500
+    "amount": 58500,
+    "date": "2024-05-19T11:45:00Z",
+    "status": "Completed",
+    "description": "Refund for event"
+  },
+  {
+    "id": 5,
+    "title": "MTN Data Purchase",
+    "type": "Data",
+    "amount": -2000,
+    "date": "2024-05-18T18:20:00Z",
+    "status": "Completed",
+    "description": "4.5GB - 30 days",
+    "details": {
+      "network": "MTN",
+      "phoneNumber": "08031234567"
+    }
+  },
+  {
+    "id": 6,
+    "title": "To Aisha Bello",
+    "type": "Transfer",
+    "amount": -5000,
+    "date": "2024-05-18T12:00:00Z",
+    "status": "Completed",
+    "description": "Lunch money"
+  },
+  {
+    "id": 7,
+    "title": "Client Payment",
+    "type": "Deposit",
+    "amount": 120000,
+    "date": "2024-05-17T16:05:00Z",
+    "status": "Completed",
+    "description": "Invoice #INV-003"
+  },
+  {
+    "id": 8,
+    "title": "Airtel Airtime",
+    "type": "Airtime",
+    "amount": -1000,
+    "date": "2024-05-17T10:10:00Z",
+    "status": "Completed",
+    "description": "Airtime top-up",
+    "details": {
+      "network": "Airtel",
+      "phoneNumber": "08029876543"
+    }
+  },
+  {
+    "id": 9,
+    "title": "GoTV Subscription",
+    "type": "Bills",
+    "amount": -4500,
+    "date": "2024-05-16T08:00:00Z",
+    "status": "Completed",
+    "description": "GoTV Max subscription",
+    "details": {
+      "biller": "GoTV",
+      "customerId": "1029384756"
+    }
+  },
+  {
+    "id": 10,
+    "title": "From John Doe",
+    "type": "Deposit",
+    "amount": 10000,
+    "date": "2024-05-15T20:30:00Z",
+    "status": "Completed",
+    "description": "Thank you"
+  },
+  {
+    "id": 11,
+    "title": "Groceries",
+    "type": "Withdrawal",
+    "amount": -12500,
+    "date": "2024-05-15T13:00:00Z",
+    "status": "Completed",
+    "description": "Shoprite POS"
+  },
+  {
+    "id": 12,
+    "title": "Salary",
+    "type": "Deposit",
+    "amount": 350000,
+    "date": "2024-04-28T15:00:00Z",
+    "status": "Completed",
+    "description": "April Salary"
+  },
+  {
+    "id": 13,
+    "title": "To Landlord",
+    "type": "Transfer",
+    "amount": -250000,
+    "date": "2024-04-29T11:00:00Z",
+    "status": "Completed",
+    "description": "House Rent"
+  },
+  {
+    "id": 14,
+    "title": "Internet Subscription",
+    "type": "Bills",
+    "amount": -7500,
+    "date": "2024-05-01T09:00:00Z",
+    "status": "Pending",
+    "description": "Spectranet Renewal",
+    "details": {
+      "biller": "Spectranet",
+      "customerId": "SPN738291"
+    }
+  },
+  {
+    "id": 15,
+    "title": "To Emeka",
+    "type": "Transfer",
+    "amount": -20000,
+    "date": "2024-05-21T11:00:00Z",
+    "status": "Failed",
+    "description": "Incorrect account details"
+  },
+  {
+    "id": 16,
+    "title": "Online Purchase",
+    "type": "Withdrawal",
+    "amount": -18000,
+    "date": "2024-05-21T15:45:00Z",
+    "status": "Pending",
+    "description": "Jumia Order #J485739"
+  },
+  {
+    "id": 17,
+    "title": "Glo Airtime",
+    "type": "Airtime",
+    "amount": -500,
+    "date": "2024-05-14T09:20:00Z",
+    "status": "Failed",
+    "description": "Insufficient funds"
   }
 ]

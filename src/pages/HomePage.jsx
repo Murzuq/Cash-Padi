@@ -22,6 +22,8 @@ const HomePage = () => {
     setIsBalanceVisible(!isBalanceVisible);
   };
 
+  const displayedTransactions = transactions.slice(0, 3);
+
   return (
     <main className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -102,14 +104,19 @@ const HomePage = () => {
               <h2 className="text-xl font-bold text-gray-800">
                 Recent Activity
               </h2>
-              <button className="text-sm font-semibold text-green-600 hover:text-green-800 transition-colors">
-                View All
-              </button>
+              {transactions.length > 3 && (
+                <Link
+                  to="/history"
+                  className="text-sm font-semibold text-green-600 hover:text-green-800 transition-colors"
+                >
+                  View All
+                </Link>
+              )}
             </div>
             <ul className="space-y-3">
-              {transactions.map((transaction, index) => (
+              {displayedTransactions.map((transaction, index) => (
                 <div key={transaction.id}>
-                  {index > 0 && <li className="border-t border-gray-200"></li>}
+                  {index > 0 && <li className="border-t border-gray-200" />}
                   <Transaction {...transaction} />
                 </div>
               ))}
