@@ -41,6 +41,7 @@ const BillsPage = () => {
   const [billerId, setBillerId] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [amount, setAmount] = useState("");
+  const [error, setError] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -51,6 +52,11 @@ const BillsPage = () => {
 
   const handlePayment = (e) => {
     e.preventDefault();
+    if (Number(amount) < 100) {
+      setError("The minimum payment amount is ₦100.");
+      return;
+    }
+    setError("");
     setIsPinModalOpen(true);
   };
 
@@ -161,6 +167,8 @@ const BillsPage = () => {
                 placeholder="e.g., Meter or Smartcard number"
               />
             </div>
+            {/* This space is reserved for customer ID-specific errors in the future */}
+            {/* {error && error.includes("Customer") && <p className="text-sm text-red-600 mt-2">{error}</p>} */}
           </div>
 
           <div>
@@ -174,12 +182,17 @@ const BillsPage = () => {
               type="number"
               id="amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                if (error) setError("");
+              }}
               required
-              min="100"
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
               placeholder="Enter amount"
             />
+            {error && error.includes("minimum") && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </div>
 
           <button

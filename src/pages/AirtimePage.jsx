@@ -21,6 +21,10 @@ const AirtimePage = () => {
       setError("Please enter a valid 11-digit phone number.");
       return;
     }
+    if (Number(amount) < 50) {
+      setError("The minimum airtime purchase is ₦50.");
+      return;
+    }
     setError("");
     setIsPinModalOpen(true);
   };
@@ -105,7 +109,9 @@ const AirtimePage = () => {
                 placeholder="08012345678"
               />
             </div>
-            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+            {error && error.includes("phone") && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </div>
 
           <div>
@@ -119,12 +125,17 @@ const AirtimePage = () => {
               type="number"
               id="amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                if (error) setError("");
+              }}
               required
-              min="50"
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
               placeholder="Enter amount"
             />
+            {error && error.includes("minimum") && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </div>
 
           <button

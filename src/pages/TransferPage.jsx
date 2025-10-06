@@ -81,7 +81,10 @@ const TransferPage = () => {
 
   const handleTransfer = (e) => {
     e.preventDefault();
-    // Here you would handle the transfer logic, e.g., show a confirmation modal, require a PIN, and make an API call.
+    if (Number(amount) < 50) {
+      setError("The minimum transfer amount is ₦50.");
+      return;
+    }
     setIsPinModalOpen(true);
   };
 
@@ -173,7 +176,9 @@ const TransferPage = () => {
                 <p className="font-semibold">{recipientName}</p>{" "}
               </div>
             )}
-            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+            {error && !error.includes("minimum") && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </div>
 
           <div>
@@ -187,11 +192,18 @@ const TransferPage = () => {
               type="number"
               id="amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                // Clear amount-specific error when user types
+                if (error.includes("minimum")) setError("");
+              }}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
               placeholder="0.00"
             />
+            {error.includes("minimum") && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </div>
 
           <div>
