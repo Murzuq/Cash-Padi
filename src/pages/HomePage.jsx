@@ -11,6 +11,9 @@ import {
   FaWifi,
 } from "react-icons/fa";
 
+import Transaction from "../components/Transaction.jsx";
+import transactions from "../data/transactions.json";
+
 const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
 
@@ -22,6 +25,7 @@ const HomePage = () => {
     <main className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Section: Main Dashboard */}
+
         <div className="lg:col-span-2 space-y-8">
           {/* Balance and Voice Command */}
           <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -90,41 +94,13 @@ const HomePage = () => {
                 View All
               </button>
             </div>
-            <ul className="space-y-4">
-              {/* Transaction 1 */}
-              <li className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-gray-700">To Sikiru</p>
-                  <p className="text-sm text-gray-500">Transfer</p>
+            <ul className="space-y-3">
+              {transactions.map((transaction, index) => (
+                <div key={transaction.id}>
+                  {index > 0 && <li className="border-t border-gray-200"></li>}
+                  <Transaction {...transaction} />
                 </div>
-                <p className="font-bold text-red-600 text-lg">−₦15,000</p>
-              </li>
-
-              {/* Divider */}
-              <li className="border-t border-gray-200"></li>
-
-              {/* Transaction 2 */}
-              <li className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-gray-700">Market Sales</p>
-                  <p className="text-sm text-gray-500">Deposit</p>
-                </div>
-                <p className="font-bold text-green-600 text-lg">+₦25,000</p>
-              </li>
-
-              {/* Divider */}
-              <li className="border-t border-gray-200"></li>
-
-              {/* Transaction 3 */}
-              <li className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-gray-700">
-                    Electricity Bill
-                  </p>
-                  <p className="text-sm text-gray-500">Utilities</p>
-                </div>
-                <p className="font-bold text-red-600 text-lg">−₦8,500</p>
-              </li>
+              ))}
             </ul>
           </div>
         </div>

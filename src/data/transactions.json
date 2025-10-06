@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "To Sikiru",
+    "type": "Transfer",
+    "amount": -15000
+  },
+  {
+    "id": 2,
+    "title": "Market Sales",
+    "type": "Deposit",
+    "amount": 25000
+  },
+  {
+    "id": 3,
+    "title": "Electricity Bill",
+    "type": "Utilities",
+    "amount": -8500
+  },
+  {
+    "id": 4,
+    "title": "From Murzuq",
+    "type": "Deposit",
+    "amount": 58500
+  }
+]
