@@ -3,6 +3,7 @@ import { FaArrowLeft, FaMobileAlt, FaWifi } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import PinModal from "../components/PinModal";
+import StatusModal from "../components/StatusModal";
 // Mock network providers and their data plans
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 const dataPlans = {
@@ -40,6 +41,12 @@ const DataPage = () => {
   const [error, setError] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState({
+    status: "",
+    title: "",
+    message: "",
+  });
 
   const selectedPlan = useMemo(() => {
     if (!network || !planId) return null;
@@ -66,10 +73,20 @@ const DataPage = () => {
     setIsConfirming(false);
     setIsPinModalOpen(false);
 
-    alert(
-      `Data purchase of ${selectedPlan.label} for ${phoneNumber} was successful!`
-    );
-    navigate("/");
+    if (pin === "123456") {
+      setTransactionStatus({
+        status: "success",
+        title: "Purchase Successful!",
+        message: `You have successfully bought ${selectedPlan.label} for ${phoneNumber}.`,
+      });
+    } else {
+      setTransactionStatus({
+        status: "error",
+        title: "Purchase Failed",
+        message: "You entered an incorrect PIN. Please try again.",
+      });
+    }
+    setIsStatusModalOpen(true);
   };
 
   const isFormValid = network && phoneNumber.length === 11 && planId;
@@ -202,6 +219,15 @@ const DataPage = () => {
             </div>
           )
         }
+      />
+
+      <StatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          if (transactionStatus.status === "success") navigate("/");
+        }}
+        {...transactionStatus}
       />
     </>
   );

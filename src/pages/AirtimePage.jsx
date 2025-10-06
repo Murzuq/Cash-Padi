@@ -3,6 +3,7 @@ import { FaArrowLeft, FaMobileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import PinModal from "../components/PinModal";
+import StatusModal from "../components/StatusModal";
 // Mock network providers
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 
@@ -14,6 +15,12 @@ const AirtimePage = () => {
   const [error, setError] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState({
+    status: "",
+    title: "",
+    message: "",
+  });
 
   const handlePurchase = (e) => {
     e.preventDefault();
@@ -39,8 +46,22 @@ const AirtimePage = () => {
     setIsConfirming(false);
     setIsPinModalOpen(false);
 
-    alert(`Airtime purchase of ₦${amount} for ${phoneNumber} was successful!`);
-    navigate("/");
+    if (pin === "123456") {
+      setTransactionStatus({
+        status: "success",
+        title: "Purchase Successful!",
+        message: `You have successfully bought ₦${Number(
+          amount
+        ).toLocaleString()} airtime for ${phoneNumber}.`,
+      });
+    } else {
+      setTransactionStatus({
+        status: "error",
+        title: "Purchase Failed",
+        message: "You entered an incorrect PIN. Please try again.",
+      });
+    }
+    setIsStatusModalOpen(true);
   };
 
   const isFormValid = network && phoneNumber.length === 11 && amount > 0;
@@ -163,6 +184,15 @@ const AirtimePage = () => {
             <p className="text-sm text-gray-500">for {phoneNumber}</p>
           </div>
         }
+      />
+
+      <StatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          if (transactionStatus.status === "success") navigate("/");
+        }}
+        {...transactionStatus}
       />
     </>
   );

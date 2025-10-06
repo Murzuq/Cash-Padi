@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import PinModal from "../components/PinModal";
+import StatusModal from "../components/StatusModal";
 // Mock data for billers
 const billers = {
   Electricity: [
@@ -44,6 +45,12 @@ const BillsPage = () => {
   const [error, setError] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState({
+    status: "",
+    title: "",
+    message: "",
+  });
 
   const availableBillers = useMemo(
     () => (category ? billers[category] : []),
@@ -71,8 +78,22 @@ const BillsPage = () => {
     setIsPinModalOpen(false);
 
     const biller = getBillerDetails(billerId);
-    alert(`Payment of ₦${amount} for ${biller.name} was successful!`);
-    navigate("/");
+    if (pin === "123456") {
+      setTransactionStatus({
+        status: "success",
+        title: "Payment Successful!",
+        message: `Your payment of ₦${Number(amount).toLocaleString()} to ${
+          biller.name
+        } was successful.`,
+      });
+    } else {
+      setTransactionStatus({
+        status: "error",
+        title: "Payment Failed",
+        message: "You entered an incorrect PIN. Please try again.",
+      });
+    }
+    setIsStatusModalOpen(true);
   };
 
   const isFormValid = category && billerId && customerId && amount > 0;
@@ -222,6 +243,15 @@ const BillsPage = () => {
             </p>
           </div>
         }
+      />
+
+      <StatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          if (transactionStatus.status === "success") navigate("/");
+        }}
+        {...transactionStatus}
       />
     </>
   );

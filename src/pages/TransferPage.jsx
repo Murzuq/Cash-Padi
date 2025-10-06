@@ -3,6 +3,7 @@ import { FaArrowLeft, FaUniversity, FaUserCheck } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import PinModal from "../components/PinModal";
+import StatusModal from "../components/StatusModal";
 // Mock bank list
 const banks = [
   "Access Bank",
@@ -48,6 +49,12 @@ const TransferPage = () => {
   const [error, setError] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState({
+    status: "",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     const verify = async () => {
@@ -98,8 +105,23 @@ const TransferPage = () => {
     setIsConfirming(false);
     setIsPinModalOpen(false);
 
-    alert(`Transfer of ₦${amount} to ${recipientName} was successful!`);
-    navigate("/");
+    // Mock success/failure based on PIN
+    if (pin === "123456") {
+      setTransactionStatus({
+        status: "success",
+        title: "Transfer Successful!",
+        message: `You have successfully sent ₦${Number(
+          amount
+        ).toLocaleString()} to ${recipientName}.`,
+      });
+    } else {
+      setTransactionStatus({
+        status: "error",
+        title: "Transfer Failed",
+        message: "You entered an incorrect PIN. Please try again.",
+      });
+    }
+    setIsStatusModalOpen(true);
   };
 
   return (
@@ -248,6 +270,15 @@ const TransferPage = () => {
             <p className="text-sm text-gray-500">to {recipientName}</p>
           </div>
         }
+      />
+
+      <StatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          if (transactionStatus.status === "success") navigate("/");
+        }}
+        {...transactionStatus}
       />
     </>
   );
