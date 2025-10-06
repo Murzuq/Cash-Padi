@@ -25,7 +25,6 @@ const HomePage = () => {
     <main className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Section: Main Dashboard */}
-
         <div className="lg:col-span-2 space-y-8">
           {/* Balance and Voice Command */}
           <div className="bg-white p-6 rounded-xl shadow-lg">
