@@ -1,6 +1,12 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaCalendarAlt, FaSync } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaSync,
+  FaFilter,
+  FaTimes,
+} from "react-icons/fa";
 import Transaction from "../components/Transaction.jsx";
 import transactions from "../data/transactions.json";
 
@@ -20,6 +26,7 @@ const TransactionHistoryPage = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   const uniqueTypes = useMemo(() => getUniqueTypes(transactions), []);
   const uniqueStatuses = useMemo(() => getUniqueStatuses(transactions), []);
@@ -53,7 +60,15 @@ const TransactionHistoryPage = () => {
     setStartDate("");
     setEndDate("");
     setFilterStatus("All");
+    setIsFilterVisible(false);
   };
+
+  const activeFilterCount =
+    (filterType !== "All" ? 1 : 0) +
+    (filterStatus !== "All" ? 1 : 0) +
+    (startDate ? 1 : 0) +
+    (endDate ? 1 : 0);
+  const areFiltersActive = activeFilterCount > 0;
 
   return (
     <>
@@ -65,12 +80,28 @@ const TransactionHistoryPage = () => {
           <FaArrowLeft />
         </button>
         <h1 className="text-xl font-bold text-gray-800">Transaction History</h1>
+        <button
+          onClick={() => setIsFilterVisible(!isFilterVisible)}
+          className="ml-auto relative flex items-center gap-2 rounded-full border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 lg:hidden"
+        >
+          {isFilterVisible ? <FaTimes /> : <FaFilter />}
+          <span>{isFilterVisible ? "Close" : "Filter"}</span>
+          {areFiltersActive && !isFilterVisible && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-xs text-white">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </header>
       <main className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
         <div className="bg-white p-6 rounded-xl shadow-lg">
-          {/* Modern Filter Controls */}
-          <div className="space-y-4 mb-8">
-            <div className="flex flex-wrap items-center gap-2">
+          {/* Modern Filter Controls - Collapsible on mobile */}
+          <div
+            className={`lg:block space-y-4 mb-8 ${
+              isFilterVisible ? "block" : "hidden"
+            }`}
+          >
+            <div className="flex flex-wrap items-center gap-2 border-b pb-4">
               <span className="text-sm font-medium text-gray-500 mr-2">
                 Type:
               </span>
@@ -89,7 +120,7 @@ const TransactionHistoryPage = () => {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 border-b pb-4">
               <span className="text-sm font-medium text-gray-500 mr-2">
                 Status:
               </span>
