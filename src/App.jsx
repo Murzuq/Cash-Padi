@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import TransferPage from "./pages/TransferPage";
 import AirtimePage from "./pages/AirtimePage";
 import DataPage from "./pages/DataPage";
+import BillsPage from "./pages/BillsPage";
 import Layout from "./components/Layout";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path="transfer" element={<TransferPage />} />
           <Route path="airtime" element={<AirtimePage />} />
           <Route path="data" element={<DataPage />} />
+          <Route path="bills" element={<BillsPage />} />
         </Route>
       </Routes>
     </Router>

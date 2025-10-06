@@ -66,12 +66,15 @@ const HomePage = () => {
                 </div>
                 <span className="text-xs sm:text-sm font-medium">Transfer</span>
               </Link>
-              <button className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50">
+              <Link
+                to="/bills"
+                className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
+              >
                 <div className="p-3 bg-green-100 rounded-full">
                   <FaFileInvoiceDollar className="text-lg sm:text-xl text-green-700" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium">Pay Bill</span>
-              </button>
+              </Link>
               <Link
                 to="/airtime"
                 className="flex flex-col items-center space-y-2 text-gray-700 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
