@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   FaArrowLeft,
   FaCalendarAlt,
@@ -8,7 +9,6 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import Transaction from "../components/Transaction.jsx";
-import transactions from "../data/transactions.json";
 
 const getUniqueTypes = (transactions) => {
   const types = transactions.map((t) => t.type);
@@ -22,14 +22,21 @@ const getUniqueStatuses = (transactions) => {
 
 const TransactionHistoryPage = () => {
   const navigate = useNavigate();
+  const transactions = useSelector((state) => state.account.transactions);
   const [filterType, setFilterType] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-  const uniqueTypes = useMemo(() => getUniqueTypes(transactions), []);
-  const uniqueStatuses = useMemo(() => getUniqueStatuses(transactions), []);
+  const uniqueTypes = useMemo(
+    () => getUniqueTypes(transactions),
+    [transactions]
+  );
+  const uniqueStatuses = useMemo(
+    () => getUniqueStatuses(transactions),
+    [transactions]
+  );
 
   const filteredTransactions = useMemo(() => {
     return transactions
@@ -53,7 +60,7 @@ const TransactionHistoryPage = () => {
         return new Date(transaction.date) < end;
       })
       .sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [filterType, startDate, endDate, filterStatus]);
+  }, [transactions, filterType, startDate, endDate, filterStatus]);
 
   const handleResetFilters = () => {
     setFilterType("All");
