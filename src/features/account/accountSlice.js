@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import initialTransactions from "../../data/transactions.json";
 
 const initialState = {
-  isAuthenticated: false, // User is not logged in by default
+  // Check localStorage to see if the user was previously logged in
+  isAuthenticated: localStorage.getItem("isAuthenticated") === "true",
   // The initial balance from your original context
   balance: 25759992.79,
   transactions: initialTransactions,
@@ -28,10 +29,12 @@ export const accountSlice = createSlice({
     // Action to handle user login
     login: (state) => {
       state.isAuthenticated = true;
+      localStorage.setItem("isAuthenticated", "true");
     },
     // Action to handle user logout
     logout: (state) => {
       state.isAuthenticated = false;
+      localStorage.removeItem("isAuthenticated");
     },
   },
 });
