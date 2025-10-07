@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
 import { FaArrowLeft, FaMobileAlt, FaWifi } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
+import { transactionAdded } from "../features/account/accountSlice";
 // Mock network providers and their data plans
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 const dataPlans = {
@@ -35,6 +37,8 @@ const dataPlans = {
 
 const DataPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const balance = useSelector((state) => state.account.balance);
   const [network, setNetwork] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [planId, setPlanId] = useState("");
@@ -57,6 +61,10 @@ const DataPage = () => {
     e.preventDefault();
     if (phoneNumber.length < 11) {
       setError("Please enter a valid 11-digit phone number.");
+      return;
+    }
+    if (selectedPlan && selectedPlan.amount > balance) {
+      setError("Insufficient balance for this purchase.");
       return;
     }
     setError("");
@@ -87,6 +95,19 @@ const DataPage = () => {
       });
     }
     setIsStatusModalOpen(true);
+
+    // Add to transaction history on success
+    if (pin === "123456" && selectedPlan) {
+      dispatch(
+        transactionAdded({
+          title: `${network} Data`,
+          type: "Data",
+          amount: -selectedPlan.amount,
+          status: "Completed",
+          description: `${selectedPlan.label} for ${phoneNumber}`,
+        })
+      );
+    }
   };
 
   const isFormValid = network && phoneNumber.length === 11 && planId;
@@ -158,7 +179,9 @@ const DataPage = () => {
                 placeholder="08012345678"
               />
             </div>
-            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+            {(error.includes("phone") || error.includes("Insufficient")) && (
+              <p className="text-sm text-red-600 mt-2">{error}</p>
+            )}
           </div>
 
           <div>
@@ -173,7 +196,12 @@ const DataPage = () => {
               <select
                 id="plan"
                 value={planId}
-                onChange={(e) => setPlanId(e.target.value)}
+                onChange={(e) => {
+                  setPlanId(e.target.value);
+                  if (error.includes("Insufficient")) {
+                    setError("");
+                  }
+                }}
                 required
                 disabled={!network}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 disabled:bg-gray-50"

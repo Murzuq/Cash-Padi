@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { FaArrowLeft, FaMobileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
+import { transactionAdded } from "../features/account/accountSlice";
 // Mock network providers
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 
 const AirtimePage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const balance = useSelector((state) => state.account.balance);
   const [network, setNetwork] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -30,6 +34,10 @@ const AirtimePage = () => {
     }
     if (Number(amount) < 50) {
       setError("The minimum airtime purchase is ₦50.");
+      return;
+    }
+    if (Number(amount) > balance) {
+      setError("Insufficient balance for this purchase.");
       return;
     }
     setError("");
@@ -62,6 +70,19 @@ const AirtimePage = () => {
       });
     }
     setIsStatusModalOpen(true);
+
+    // Add to transaction history on success
+    if (pin === "123456") {
+      dispatch(
+        transactionAdded({
+          title: `${network} Airtime`,
+          type: "Airtime",
+          amount: -Number(amount),
+          status: "Completed",
+          description: `Airtime for ${phoneNumber}`,
+        })
+      );
+    }
   };
 
   const isFormValid = network && phoneNumber.length === 11 && amount > 0;
@@ -148,13 +169,18 @@ const AirtimePage = () => {
               value={amount}
               onChange={(e) => {
                 setAmount(e.target.value);
-                if (error) setError("");
+                if (
+                  error.includes("minimum") ||
+                  error.includes("Insufficient")
+                ) {
+                  setError("");
+                }
               }}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
               placeholder="Enter amount"
             />
-            {error && error.includes("minimum") && (
+            {(error.includes("minimum") || error.includes("Insufficient")) && (
               <p className="text-sm text-red-600 mt-2">{error}</p>
             )}
           </div>
