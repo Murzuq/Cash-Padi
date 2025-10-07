@@ -21,18 +21,41 @@ const LoginPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setErrors({});
-    // Here you would typically validate credentials against a backend
-    console.log("Logging in with:", { email, password });
-    dispatch(login());
-    navigate("/"); // Navigate to dashboard on successful login
+
+    try {
+      const response = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle errors from the backend (e.g., invalid credentials)
+        setErrors({ api: data.message || "Login failed. Please try again." });
+        return;
+      }
+
+      // On successful login, dispatch the login action and navigate
+      console.log("Login successful:", data);
+      dispatch(login(data)); // Pass the user data payload to the login action
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({
+        api: "Could not connect to the server. Please try again later.",
+      });
+    }
   };
 
   return (
@@ -58,6 +81,11 @@ const LoginPage = () => {
           <p className="mt-2 text-center text-sm text-gray-600">
             Sign in to continue to your CashPadi account.
           </p>
+          {errors.api && (
+            <p className="mt-2 text-center text-sm text-red-600">
+              {errors.api}
+            </p>
+          )}
         </div>
         <form noValidate className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">

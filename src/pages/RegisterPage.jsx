@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../features/account/accountSlice";
 
 const RegisterPage = () => {
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -13,7 +13,7 @@ const RegisterPage = () => {
 
   const validate = () => {
     const newErrors = {};
-    if (!name) newErrors.name = "Full name is required.";
+    if (!fullName) newErrors.name = "Full name is required.";
     if (!email) {
       newErrors.email = "Email address is required.";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -27,18 +27,43 @@ const RegisterPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setErrors({});
-    console.log("Registering with:", { name, email, password });
-    // For now, we'll simulate a successful registration and login
-    dispatch(login());
-    navigate("/"); // Navigate to dashboard
+
+    try {
+      const response = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fullName, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle errors from the backend (e.g., user already exists)
+        setErrors({
+          api: data.message || "Registration failed. Please try again.",
+        });
+        return;
+      }
+
+      // On successful registration, dispatch the login action with user data and navigate
+      console.log("Registration successful:", data);
+      dispatch(login(data)); // Pass the user data payload to the login action
+      navigate("/");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrors({
+        api: "Could not connect to the server. Please try again later.",
+      });
+    }
   };
 
   return (
@@ -64,6 +89,11 @@ const RegisterPage = () => {
           <p className="mt-2 text-center text-sm text-gray-600">
             And start your journey with CashPadi.
           </p>
+          {errors.api && (
+            <p className="mt-2 text-center text-sm text-red-600">
+              {errors.api}
+            </p>
+          )}
         </div>
         <form noValidate className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
@@ -81,8 +111,8 @@ const RegisterPage = () => {
                   errors.name ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
               />
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1 px-1">{errors.name}</p>

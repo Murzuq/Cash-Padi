@@ -29,18 +29,12 @@ export const accountSlice = createSlice({
       state.balance += newTransaction.amount; // Assumes amount is negative for debits
     },
     // Action to handle user login
-    login: (state) => {
-      // Only generate a new account number if one doesn't already exist
-      if (!state.accountNumber) {
-        // Generate a random 10-digit account number
-        const newAccountNumber = Math.floor(
-          1000000000 + Math.random() * 9000000000
-        ).toString();
-        state.accountNumber = newAccountNumber;
-        localStorage.setItem("accountNumber", newAccountNumber);
-      }
+    login: (state, action) => {
+      const { accountNumber } = action.payload;
       state.isAuthenticated = true;
+      state.accountNumber = accountNumber;
       localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("accountNumber", accountNumber);
     },
     // Action to handle user logout
     logout: (state) => {
