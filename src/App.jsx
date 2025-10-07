@@ -5,6 +5,7 @@ import AirtimePage from "./pages/AirtimePage";
 import DataPage from "./pages/DataPage";
 import BillsPage from "./pages/BillsPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import Layout from "./components/Layout";
 
 const router = createBrowserRouter([
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
       { path: "data", element: <DataPage /> },
       { path: "bills", element: <BillsPage /> },
       { path: "history", element: <TransactionHistoryPage /> },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);
