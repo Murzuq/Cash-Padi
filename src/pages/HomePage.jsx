@@ -12,16 +12,24 @@ import {
   FaWifi,
 } from "react-icons/fa";
 
+import { useSelector } from "react-redux";
 import Transaction from "../components/Transaction.jsx";
-import transactions from "../data/transactions.json";
 
 const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  // Use Redux's useSelector to get state from the store
+  const balance = useSelector((state) => state.account.balance);
+  const transactions = useSelector((state) => state.account.transactions);
 
   const toggleBalanceVisibility = () => {
     setIsBalanceVisible(!isBalanceVisible);
   };
 
+  // Format the balance from the context
+  const formattedBalance = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  }).format(balance);
   const displayedTransactions = transactions.slice(0, 3);
 
   return (
@@ -43,7 +51,7 @@ const HomePage = () => {
               </button>
             </div>
             <p className="text-4xl lg:text-5xl font-bold text-gray-800 tracking-tight">
-              {isBalanceVisible ? "₦257,592.79" : "₦******.**"}
+              {isBalanceVisible ? formattedBalance : "₦******.**"}
             </p>
 
             {/* Voice Command Area */}

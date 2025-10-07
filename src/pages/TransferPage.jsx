@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { FaArrowLeft, FaUniversity, FaUserCheck } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
+import { useSelector, useDispatch } from "react-redux";
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
+import { transactionAdded } from "../features/account/accountSlice";
 // Mock bank list
 const banks = [
   "Access Bank",
@@ -40,6 +41,9 @@ const verifyRecipient = async (accountNumber, bank) => {
 
 const TransferPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const balance = useSelector((state) => state.account.balance);
+
   const [accountNumber, setAccountNumber] = useState("");
   const [bank, setBank] = useState("");
   const [amount, setAmount] = useState("");
@@ -92,6 +96,14 @@ const TransferPage = () => {
       setError("The minimum transfer amount is ₦50.");
       return;
     }
+    if (Number(amount) > 5000000) {
+      setError("The maximum transfer amount is ₦5,000,000.");
+      return;
+    }
+    if (Number(amount) > balance) {
+      setError("Insufficient balance for this transfer.");
+      return;
+    }
     setIsPinModalOpen(true);
   };
 
@@ -114,6 +126,16 @@ const TransferPage = () => {
           amount
         ).toLocaleString()} to ${recipientName}.`,
       });
+      // Dispatch the action to add the transaction to the Redux store
+      dispatch(
+        transactionAdded({
+          title: `To ${recipientName}`,
+          type: "Transfer",
+          amount: -Number(amount),
+          status: "Completed",
+          description: narration || `Transfer to ${recipientName}`,
+        })
+      );
     } else {
       setTransactionStatus({
         status: "error",
@@ -198,9 +220,12 @@ const TransferPage = () => {
                 <p className="font-semibold">{recipientName}</p>{" "}
               </div>
             )}
-            {error && !error.includes("minimum") && (
-              <p className="text-sm text-red-600 mt-2">{error}</p>
-            )}
+            {error &&
+              !error.includes("minimum") &&
+              !error.includes("maximum") &&
+              !error.includes("Insufficient") && (
+                <p className="text-sm text-red-600 mt-2">{error}</p>
+              )}
           </div>
 
           <div>
@@ -216,14 +241,21 @@ const TransferPage = () => {
               value={amount}
               onChange={(e) => {
                 setAmount(e.target.value);
-                // Clear amount-specific error when user types
-                if (error.includes("minimum")) setError("");
+                if (
+                  error.includes("minimum") ||
+                  error.includes("maximum") ||
+                  error.includes("Insufficient")
+                ) {
+                  setError("");
+                }
               }}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
               placeholder="0.00"
             />
-            {error.includes("minimum") && (
+            {(error.includes("minimum") ||
+              error.includes("maximum") ||
+              error.includes("Insufficient")) && (
               <p className="text-sm text-red-600 mt-2">{error}</p>
             )}
           </div>
