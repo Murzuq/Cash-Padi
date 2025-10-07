@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import initialTransactions from "../../data/transactions.json";
 
 const initialState = {
+  isAuthenticated: false, // User is not logged in by default
   // The initial balance from your original context
   balance: 25759992.79,
   transactions: initialTransactions,
@@ -24,9 +25,13 @@ export const accountSlice = createSlice({
       state.transactions.unshift(newTransaction);
       state.balance += newTransaction.amount; // Assumes amount is negative for debits
     },
+    // Action to handle user login
+    login: (state) => {
+      state.isAuthenticated = true;
+    },
   },
 });
 
-export const { transactionAdded } = accountSlice.actions;
+export const { transactionAdded, login } = accountSlice.actions;
 
 export default accountSlice.reducer;
