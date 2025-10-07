@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import TransferPage from "./pages/TransferPage";
 import AirtimePage from "./pages/AirtimePage";
 import DataPage from "./pages/DataPage";
@@ -12,11 +14,11 @@ import Layout from "./components/Layout";
 
 const router = createBrowserRouter([
   {
-    element: <ProtectedRoute />,
+    path: "/",
+    element: <Layout />,
     children: [
       {
-        path: "/",
-        element: <Layout />,
+        element: <ProtectedRoute />,
         children: [
           { index: true, element: <HomePage /> },
           { path: "transfer", element: <TransferPage /> },
@@ -30,8 +32,16 @@ const router = createBrowserRouter([
   },
   // Public routes
   {
-    path: "/welcome",
+    path: "/welcome", // You can keep this or remove it if / is the new landing
     element: <LandingPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
   },
   {
     path: "*",

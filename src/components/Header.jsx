@@ -1,21 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../features/account/accountSlice";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // Simulate user login state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedIn = useSelector((state) => state.account.isAuthenticated);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+    dispatch(logout());
+    navigate("/welcome");
   };
 
   return (
@@ -64,7 +64,6 @@ const Header = () => {
               <Link
                 to="/login"
                 className="text-green-400 hover:text-green-300 font-semibold transition duration-300"
-                onClick={handleLogin}
               >
                 Login
               </Link>
@@ -155,10 +154,7 @@ const Header = () => {
               <Link
                 to="/login"
                 className="block py-2 px-4 text-sm text-green-400 hover:bg-gray-700"
-                onClick={() => {
-                  handleLogin();
-                  toggleMenu();
-                }}
+                onClick={toggleMenu}
               >
                 Login
               </Link>

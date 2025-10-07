@@ -29,9 +29,13 @@ export const accountSlice = createSlice({
     login: (state) => {
       state.isAuthenticated = true;
     },
+    // Action to handle user logout
+    logout: (state) => {
+      state.isAuthenticated = false;
+    },
   },
 });
 
-export const { transactionAdded, login } = accountSlice.actions;
+export const { transactionAdded, login, logout } = accountSlice.actions;
 
 export default accountSlice.reducer;

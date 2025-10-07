@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { login } from "../features/account/accountSlice";
 import {
   FaShieldAlt,
   FaUsers,
@@ -17,8 +16,11 @@ const LandingPage = () => {
   const dispatch = useDispatch();
 
   const handleLogin = () => {
-    dispatch(login());
-    navigate("/"); // Navigate to the main app dashboard after "login"
+    navigate("/login");
+  };
+
+  const handleRegister = () => {
+    navigate("/register");
   };
 
   return (
@@ -30,12 +32,20 @@ const LandingPage = () => {
       <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-emerald-600">CashPadi</h1>
-          <button
-            onClick={handleLogin}
-            className="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all"
-          >
-            Login
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLogin}
+              className="px-6 py-2.5 text-emerald-600 font-semibold rounded-full hover:bg-emerald-50 transition-all"
+            >
+              Login
+            </button>
+            <button
+              onClick={handleRegister}
+              className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+              Register
+            </button>
+          </div>
         </div>
       </header>
 
@@ -57,10 +67,10 @@ const LandingPage = () => {
                   and manage your finances. Think of us as your financial "padi"
                   always there when you need it.
                 </p>
-                <div className="mt-10">
+                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                   <button
-                    onClick={handleLogin}
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    onClick={handleRegister}
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all transform focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 w-full sm:w-auto"
                   >
                     <span>Get Started for Free</span>
                     <FaArrowRight />
