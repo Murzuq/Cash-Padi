@@ -10,6 +10,8 @@ import {
   FaFileInvoiceDollar,
   FaMobileAlt,
   FaWifi,
+  FaCopy,
+  FaCheck,
 } from "react-icons/fa";
 
 import { useSelector } from "react-redux";
@@ -17,12 +19,24 @@ import Transaction from "../components/Transaction.jsx";
 
 const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [isCopied, setIsCopied] = useState(false);
   // Use Redux's useSelector to get state from the store
   const balance = useSelector((state) => state.account.balance);
   const transactions = useSelector((state) => state.account.transactions);
+  const accountNumber = useSelector((state) => state.account.accountNumber);
 
   const toggleBalanceVisibility = () => {
     setIsBalanceVisible(!isBalanceVisible);
+  };
+
+  const handleCopy = () => {
+    if (accountNumber) {
+      navigator.clipboard.writeText(accountNumber).then(() => {
+        setIsCopied(true);
+        // Reset the copied state after 2 seconds
+        setTimeout(() => setIsCopied(false), 2000);
+      });
+    }
   };
 
   // Format the balance from the context
@@ -53,6 +67,22 @@ const HomePage = () => {
             <p className="text-4xl lg:text-5xl font-bold text-gray-800 tracking-tight">
               {isBalanceVisible ? formattedBalance : "₦******.**"}
             </p>
+            {accountNumber && (
+              <div className="flex items-center justify-left space-x-2 mt-3">
+                <p className="text-base text-gray-600">A/C: {accountNumber}</p>
+                <button
+                  onClick={handleCopy}
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                  aria-label="Copy account number"
+                >
+                  {isCopied ? (
+                    <FaCheck className="text-green-500" />
+                  ) : (
+                    <FaCopy />
+                  )}
+                </button>
+              </div>
+            )}
 
             {/* Voice Command Area */}
             <div className="mt-8 bg-green-50 p-4 rounded-lg border border-green-200">
