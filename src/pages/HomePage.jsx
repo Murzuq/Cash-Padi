@@ -24,7 +24,6 @@ const HomePage = () => {
   const user = useSelector((state) => state.account.user);
   const transactions = useSelector((state) => state.account.transactions);
   const { balance, accountNumber, fullName } = user || {};
-
   console.log("user from Redux:", user);
 
   const toggleBalanceVisibility = () => {

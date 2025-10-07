@@ -27,8 +27,10 @@ export const accountSlice = createSlice({
     },
     // Action to handle user login
     login: (state, action) => {
-      // The payload is the entire user object from the API/localStorage
-      state.user = action.payload;
+      // The payload is the full API response: { user: { ... }, token: "..." }
+      // or from localStorage: { user: { ... }, token: "..." }
+      state.user = action.payload.user;
+      state.user.token = action.payload.token; // Attach token to the user object
       state.isAuthenticated = true;
     },
     // Action to handle user logout

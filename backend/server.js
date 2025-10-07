@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
 import transactionRoutes from "./routes/transactions.js";
+import userRoutes from "./routes/userRoutes.js"; // 1. Import the new user routes
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,7 @@ connectDB();
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/users", userRoutes); // 2. Tell Express to use the user routes
 
 const PORT = process.env.PORT || 5000;
 
