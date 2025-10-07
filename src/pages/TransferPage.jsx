@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from "react-redux";
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
 import { transactionAdded } from "../features/account/accountSlice";
-// Mock bank list
 const banks = [
   "Access Bank",
   "Citibank",
@@ -29,12 +28,31 @@ const banks = [
 ].sort();
 
 // Mock recipient verification
-const verifyRecipient = async (accountNumber, bank) => {
-  console.log(`Verifying ${accountNumber} at ${bank}...`);
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  if (accountNumber && accountNumber.length === 10 && bank) {
-    return "Murzuq Isah"; // Mocked recipient name
+const verifyRecipient = async (accountNumber, bank, token) => {
+  if (bank === "Cash Padi") {
+    // Real backend verification for Cash Padi users
+    const response = await fetch(
+      "http://localhost:5000/api/users/verify-account",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ accountNumber }),
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    return data.fullName;
+  } else {
+    // Mock verification for other banks
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (accountNumber && accountNumber.length === 10 && bank) {
+      return "Murzuq Isah"; // Mocked recipient name
+    }
   }
   return null;
 };
@@ -42,8 +60,11 @@ const verifyRecipient = async (accountNumber, bank) => {
 const TransferPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const balance = useSelector((state) => state.account.balance);
+  const user = useSelector((state) => state.account.user);
+  const token = user?.token;
+  const balance = user?.balance || 0;
 
+  const [transferType, setTransferType] = useState("cashpadi"); // 'cashpadi' or 'other'
   const [accountNumber, setAccountNumber] = useState("");
   const [bank, setBank] = useState("");
   const [amount, setAmount] = useState("");
@@ -62,12 +83,20 @@ const TransferPage = () => {
 
   useEffect(() => {
     const verify = async () => {
-      if (accountNumber.length === 10 && bank) {
+      const shouldVerify =
+        transferType === "cashpadi"
+          ? accountNumber.length === 10
+          : accountNumber.length === 10 && bank;
+      if (shouldVerify) {
         setIsVerifying(true);
         setRecipientName("");
         setError("");
         try {
-          const name = await verifyRecipient(accountNumber, bank);
+          const name = await verifyRecipient(
+            accountNumber,
+            transferType === "cashpadi" ? "Cash Padi" : bank,
+            token
+          );
           if (name) {
             setRecipientName(name);
           } else {
@@ -88,7 +117,7 @@ const TransferPage = () => {
 
     const timeoutId = setTimeout(verify, 500); // Debounce verification
     return () => clearTimeout(timeoutId);
-  }, [accountNumber, bank]);
+  }, [accountNumber, bank, transferType, token]);
 
   const handleTransfer = (e) => {
     e.preventDefault();
@@ -163,40 +192,68 @@ const TransferPage = () => {
           onSubmit={handleTransfer}
           className="bg-white p-6 rounded-xl shadow-lg space-y-6"
         >
-          <div>
-            <label
-              htmlFor="bank"
-              className="block text-sm font-medium text-gray-700 mb-1"
+          <div className="flex border border-gray-300 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setTransferType("cashpadi")}
+              className={`w-1/2 py-2 text-sm font-medium rounded-md transition-colors ${
+                transferType === "cashpadi"
+                  ? "bg-green-600 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
-              Recipient's Bank
-            </label>
-            <div className="relative">
-              <FaUniversity className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-              <select
-                id="bank"
-                value={bank}
-                onChange={(e) => setBank(e.target.value)}
-                required
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="" disabled>
-                  Select a bank
-                </option>
-                {banks.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-            </div>
+              To Cash Padi User
+            </button>
+            <button
+              type="button"
+              onClick={() => setTransferType("other")}
+              className={`w-1/2 py-2 text-sm font-medium rounded-md transition-colors ${
+                transferType === "other"
+                  ? "bg-green-600 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              To Other Banks
+            </button>
           </div>
 
+          {transferType === "other" && (
+            <div>
+              <label
+                htmlFor="bank"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Recipient's Bank
+              </label>
+              <div className="relative">
+                <FaUniversity className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+                <select
+                  id="bank"
+                  value={bank}
+                  onChange={(e) => setBank(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="" disabled>
+                    Select a bank
+                  </option>
+                  {banks.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
           <div>
             <label
               htmlFor="accountNumber"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 mb-1 capitalize"
             >
-              Account Number
+              {transferType === "cashpadi"
+                ? "Recipient's Account Number"
+                : "Account Number"}
             </label>
             <input
               type="text"

@@ -51,9 +51,9 @@ const LoginPage = () => {
       console.log("Account Number:", data.user.accountNumber);
 
       // Persist user data to localStorage to keep user logged in
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user", JSON.stringify(data));
 
-      dispatch(login(data.user)); // Pass only the user object to the login action
+      dispatch(login(data)); // Pass the full payload { user, token }
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);

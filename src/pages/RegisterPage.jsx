@@ -56,7 +56,8 @@ const RegisterPage = () => {
 
       // On successful registration, dispatch the login action with user data and navigate
       console.log("Registration successful:", data);
-      dispatch(login(data)); // Pass the user data payload to the login action
+      localStorage.setItem("user", JSON.stringify(data)); // Persist user data
+      dispatch(login(data)); // Pass the full payload { user, token }
       navigate("/");
     } catch (error) {
       console.error("Registration error:", error);

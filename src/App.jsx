@@ -61,7 +61,7 @@ function App() {
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
-        dispatch(login(userData)); // userData is now the user object itself
+        dispatch(login(userData)); // userData is now { user: {...}, token: "..." }
       } catch (error) {
         console.error("Failed to parse user data from localStorage", error);
         localStorage.removeItem("user");
