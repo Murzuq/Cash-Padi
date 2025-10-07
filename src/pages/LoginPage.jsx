@@ -48,7 +48,12 @@ const LoginPage = () => {
 
       // On successful login, dispatch the login action and navigate
       console.log("Login successful:", data);
-      dispatch(login(data)); // Pass the user data payload to the login action
+      console.log("Account Number:", data.user.accountNumber);
+
+      // Persist user data to localStorage to keep user logged in
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      dispatch(login(data.user)); // Pass only the user object to the login action
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);

@@ -2,12 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import initialTransactions from "../../data/transactions.json";
 
 const initialState = {
-  // Check localStorage to see if the user was previously logged in
-  isAuthenticated: localStorage.getItem("isAuthenticated") === "true",
-  // Retrieve account number from localStorage or set to null
-  accountNumber: localStorage.getItem("accountNumber") || null,
-  // The initial balance from your original context
-  balance: 25759992.79,
+  user: null,
+  isAuthenticated: false,
+  // Note: balance, accountNumber, and fullName will now live inside the user object
   transactions: initialTransactions,
 };
 
@@ -30,18 +27,15 @@ export const accountSlice = createSlice({
     },
     // Action to handle user login
     login: (state, action) => {
-      const { accountNumber } = action.payload;
+      // The payload is the entire user object from the API/localStorage
+      state.user = action.payload;
       state.isAuthenticated = true;
-      state.accountNumber = accountNumber;
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("accountNumber", accountNumber);
     },
     // Action to handle user logout
     logout: (state) => {
+      state.user = null;
       state.isAuthenticated = false;
-      state.accountNumber = null;
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("accountNumber");
+      // We will also clear localStorage where the logout is dispatched
     },
   },
 });

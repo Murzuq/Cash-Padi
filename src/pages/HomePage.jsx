@@ -21,9 +21,11 @@ const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   // Use Redux's useSelector to get state from the store
-  const balance = useSelector((state) => state.account.balance);
+  const user = useSelector((state) => state.account.user);
   const transactions = useSelector((state) => state.account.transactions);
-  const accountNumber = useSelector((state) => state.account.accountNumber);
+  const { balance, accountNumber, fullName } = user || {};
+
+  console.log("user from Redux:", user);
 
   const toggleBalanceVisibility = () => {
     setIsBalanceVisible(!isBalanceVisible);
@@ -43,7 +45,7 @@ const HomePage = () => {
   const formattedBalance = new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
-  }).format(balance);
+  }).format(balance || 0);
   const displayedTransactions = transactions.slice(0, 3);
 
   return (
@@ -52,6 +54,11 @@ const HomePage = () => {
         {/* Left Section: Main Dashboard */}
         <div className="lg:col-span-2 space-y-8">
           {/* Balance and Voice Command */}
+          {fullName && (
+            <div className="text-2xl font-semibold text-gray-800">
+              <h2>Welcome back, {fullName.split(" ")[0]}!</h2>
+            </div>
+          )}
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-gray-500">

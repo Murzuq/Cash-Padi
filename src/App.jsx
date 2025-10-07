@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { login } from "./features/account/accountSlice";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -50,6 +53,29 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        dispatch(login(userData)); // userData is now the user object itself
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage", error);
+        localStorage.removeItem("user");
+      }
+    }
+    // Signal that we've checked for authentication and the app can now render.
+    setIsAuthReady(true);
+  }, [dispatch]); // The effect runs once when the component mounts
+
+  // Don't render the router until we've checked for the user's auth status
+  if (!isAuthReady) {
+    return null; // Or you can return a loading spinner component here
+  }
+
   return <RouterProvider router={router} />;
 }
 
