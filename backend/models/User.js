@@ -4,6 +4,16 @@ import bcrypt from "bcryptjs";
 
 const nanoid = customAlphabet("1234567890", 10);
 
+const TransactionSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  type: { type: String, required: true }, // e.g., 'Transfer', 'Airtime'
+  amount: { type: Number, required: true }, // Negative for debit, positive for credit
+  status: { type: String, required: true, default: "Completed" },
+  description: { type: String },
+  date: { type: Date, default: Date.now },
+  // You could add more fields like a unique transaction ID here
+});
+
 const UserSchema = new mongoose.Schema(
   {
     fullName: {
@@ -36,6 +46,7 @@ const UserSchema = new mongoose.Schema(
       required: [true, "Please set a transaction PIN"],
       select: false,
     },
+    transactions: [TransactionSchema],
   },
   { timestamps: true }
 );

@@ -167,7 +167,7 @@ const HomePage = () => {
             </div>
             <ul className="space-y-3">
               {displayedTransactions.map((transaction, index) => (
-                <span key={transaction.id}>
+                <span key={transaction._id || transaction.id}>
                   {index > 0 && <div className="border-t border-gray-200" />}
                   <Transaction {...transaction} />
                 </span>

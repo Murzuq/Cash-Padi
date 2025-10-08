@@ -11,18 +11,24 @@ import {
 import Transaction from "../components/Transaction.jsx";
 
 const getUniqueTypes = (transactions) => {
+  if (!transactions) return ["All"];
   const types = transactions.map((t) => t.type);
   return ["All", ...new Set(types)];
 };
 
 const getUniqueStatuses = (transactions) => {
+  if (!transactions) return ["All"];
   const statuses = transactions.map((t) => t.status);
   return ["All", ...new Set(statuses)];
 };
 
 const TransactionHistoryPage = () => {
   const navigate = useNavigate();
-  const transactions = useSelector((state) => state.account.transactions);
+  const { user } = useSelector((state) => state.account);
+
+  // Safely access transactions, defaulting to an empty array
+  const transactions = user?.user?.transactions || [];
+
   const [filterType, setFilterType] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -195,10 +201,10 @@ const TransactionHistoryPage = () => {
           <ul className="space-y-3">
             {filteredTransactions.length > 0 ? (
               filteredTransactions.map((transaction, index) => (
-                <div key={transaction.id}>
-                  {index > 0 && <li className="border-t border-gray-200" />}
+                <li key={transaction._id || transaction.id}>
+                  {index > 0 && <div className="border-t border-gray-200" />}
                   <Transaction {...transaction} />
-                </div>
+                </li>
               ))
             ) : (
               <p className="text-center text-gray-500 py-8">

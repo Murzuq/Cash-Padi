@@ -66,8 +66,24 @@ router.post(
       sender.balance -= amount;
       recipient.balance += amount;
 
-      // Create transaction records (optional, but good practice)
-      // You would typically save these to a 'Transactions' collection
+      // Create transaction records for both sender and recipient
+      const senderTransaction = {
+        title: `To ${recipient.fullName}`,
+        type: "Transfer",
+        amount: -amount,
+        status: "Completed",
+        description: narration || `Transfer to ${recipient.fullName}`,
+      };
+      sender.transactions.unshift(senderTransaction);
+
+      const recipientTransaction = {
+        title: `From ${sender.fullName}`,
+        type: "Transfer",
+        amount: amount,
+        status: "Completed",
+        description: narration || `Transfer from ${sender.fullName}`,
+      };
+      recipient.transactions.unshift(recipientTransaction);
 
       await sender.save({ session });
       await recipient.save({ session });
