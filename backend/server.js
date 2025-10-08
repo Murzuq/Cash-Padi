@@ -15,6 +15,8 @@ const app = express();
 // Middleware
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // Body parser for JSON
+
+const HOST = process.env.HOST || "0.0.0.0";
 const PORT = process.env.PORT || 5000;
 
 // Connect to Database
@@ -22,7 +24,9 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB Connected...");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, HOST, () =>
+      console.log(`Server running on http://${HOST}:${PORT}`)
+    );
   } catch (err) {
     console.error(err.message);
     process.exit(1);
