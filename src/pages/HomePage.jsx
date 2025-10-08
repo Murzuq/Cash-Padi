@@ -16,6 +16,7 @@ import {
 
 import { useSelector } from "react-redux";
 import Transaction from "../components/Transaction.jsx";
+import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 
 const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
@@ -54,8 +55,11 @@ const HomePage = () => {
         <div className="lg:col-span-2 space-y-8">
           {/* Balance and Voice Command */}
           {fullName && (
-            <div className="text-2xl font-semibold text-gray-800">
-              <h2>Welcome back, {fullName.split(" ")[0]}!</h2>
+            <div className="flex justify-between items-center">
+              <div className="text-2xl font-semibold text-gray-800">
+                <h2>Welcome back, {fullName.split(" ")[0]}!</h2>
+              </div>
+              <LanguageSwitcher />
             </div>
           )}
           <div className="bg-white p-6 rounded-xl shadow-lg">
