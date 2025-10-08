@@ -9,6 +9,8 @@ import { transactionAdded } from "../features/account/accountSlice";
 // Mock network providers
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const AirtimePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -51,22 +53,19 @@ const AirtimePage = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/transactions/airtime",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            network,
-            phoneNumber,
-            amount: Number(amount),
-            pin,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/transactions/airtime`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          network,
+          phoneNumber,
+          amount: Number(amount),
+          pin,
+        }),
+      });
 
       const data = await response.json();
 

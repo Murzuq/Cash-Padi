@@ -27,22 +27,20 @@ const banks = [
   "Zenith Bank",
 ].sort();
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 // Mock recipient verification
 const verifyRecipient = async (accountNumber, bank, token) => {
   if (bank === "Cash Padi") {
     // Real backend verification for Cash Padi users
-    const response = await fetch(
-      "https://cash-padi.onrender.com/api/users/verify-account" ||
-        "http://localhost:5000/api/users/verify-account",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ accountNumber }),
-      }
-    );
+    const response = await fetch(`${API_URL}/api/users/verify-account`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ accountNumber }),
+    });
 
     if (!response.ok) return null;
 
@@ -142,22 +140,19 @@ const TransferPage = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/transactions/transfer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            to: accountNumber,
-            amount: Number(amount),
-            pin,
-            narration,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/transactions/transfer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          to: accountNumber,
+          amount: Number(amount),
+          pin,
+          narration,
+        }),
+      });
 
       const data = await response.json();
 

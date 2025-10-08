@@ -38,6 +38,8 @@ const getBillerDetails = (billerId) => {
   return null;
 };
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const BillsPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -89,22 +91,19 @@ const BillsPage = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/transactions/bill",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            billerName: biller.name,
-            customerId,
-            amount: Number(amount),
-            pin,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/transactions/bill`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          billerName: biller.name,
+          customerId,
+          amount: Number(amount),
+          pin,
+        }),
+      });
 
       const data = await response.json();
 

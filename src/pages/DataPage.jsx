@@ -35,6 +35,8 @@ const dataPlans = {
   ],
 };
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const DataPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -84,23 +86,20 @@ const DataPage = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/transactions/data",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            network,
-            phoneNumber,
-            amount: selectedPlan.amount,
-            pin,
-            planLabel: selectedPlan.label,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/transactions/data`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          network,
+          phoneNumber,
+          amount: selectedPlan.amount,
+          pin,
+          planLabel: selectedPlan.label,
+        }),
+      });
 
       const data = await response.json();
 
