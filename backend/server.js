@@ -12,8 +12,14 @@ dotenv.config();
 
 const app = express();
 
+// Configure CORS to allow requests from your frontend
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  optionsSuccessStatus: 200,
+};
+
 // Middleware
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(cors(corsOptions)); // Use specific CORS options
 app.use(express.json()); // Body parser for JSON
 
 const HOST = process.env.HOST || "0.0.0.0";
