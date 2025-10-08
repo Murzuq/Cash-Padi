@@ -1,9 +1,16 @@
+import { useState, useRef } from "react";
 import { FaTimes, FaShareAlt, FaPrint, FaDownload } from "react-icons/fa";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ReceiptDocument from "./ReceiptDocument";
 
 const ReceiptModal = ({ isOpen, onClose, transaction }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const receiptRef = useRef(null);
+
   if (!isOpen || !transaction) return null;
 
-  const { title, type, amount, date, status, description } = transaction;
+  const { title, type, amount, date, status, description, _id, id } =
+    transaction;
   const isCredit = amount > 0;
 
   const formattedAmount = new Intl.NumberFormat("en-NG", {
@@ -16,6 +23,8 @@ const ReceiptModal = ({ isOpen, onClose, transaction }) => {
     timeStyle: "medium",
   });
 
+  const transactionId = _id || id;
+
   const handleShare = async () => {
     const receiptText = `
 Transaction Receipt - CashPadi
@@ -25,6 +34,7 @@ Amount: ${isCredit ? "+" : "−"}${formattedAmount}
 Type: ${type}
 Date: ${formattedDate}
 Status: ${status}
+Transaction ID: ${transactionId}
 Description: ${description || "N/A"}
 --------------------------------
 Thank you for using CashPadi!
@@ -61,7 +71,11 @@ Thank you for using CashPadi!
           </button>
         </div>
 
-        <div id="receipt-content" className="p-6 space-y-4">
+        <div
+          ref={receiptRef}
+          id="receipt-content"
+          className="p-6 space-y-4 bg-white"
+        >
           <div className="text-center pb-4 border-b border-dashed">
             <p className="text-sm text-gray-500">{type}</p>
             <p
@@ -94,6 +108,14 @@ Thank you for using CashPadi!
                 {formattedDate}
               </span>
             </div>
+            {transactionId && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Transaction ID</span>
+                <span className="font-mono text-xs text-gray-600 pt-1">
+                  {transactionId}
+                </span>
+              </div>
+            )}
             {description && (
               <div className="flex justify-between">
                 <span className="text-gray-500">Description</span>
@@ -113,7 +135,20 @@ Thank you for using CashPadi!
             <FaShareAlt size={20} />
             <span className="text-xs mt-1">Share</span>
           </button>
-          {/* Add Print/Download functionality here in the future */}
+          <PDFDownloadLink
+            document={<ReceiptDocument transaction={transaction} />}
+            fileName={`cashpadi-receipt-${transactionId}.pdf`}
+            className="flex flex-col items-center text-green-600 hover:text-green-800"
+          >
+            {({ blob, url, loading, error }) => (
+              <>
+                <FaDownload size={20} />
+                <span className="text-xs mt-1">
+                  {loading ? "Generating..." : "Download PDF"}
+                </span>
+              </>
+            )}
+          </PDFDownloadLink>
         </div>
       </div>
     </div>
