@@ -37,8 +37,8 @@ const RegisterPage = () => {
 
     try {
       const response = await fetch(
-        "https://cash-padi.onrender.com/api/auth/register" ||
-          "http://localhost:5000/api/auth/register",
+        // "https://cash-padi.onrender.com/api/auth/register" ||
+        "http://localhost:5000/api/auth/register",
         {
           method: "POST",
           headers: {

@@ -32,8 +32,8 @@ const verifyRecipient = async (accountNumber, bank, token) => {
   if (bank === "Cash Padi") {
     // Real backend verification for Cash Padi users
     const response = await fetch(
-      "https://cash-padi.onrender.com/api/users/verify-account" ||
-        "http://localhost:5000/api/users/verify-account",
+      // "https://cash-padi.onrender.com/api/users/verify-account" ||
+      "http://localhost:5000/api/users/verify-account",
       {
         method: "POST",
         headers: {

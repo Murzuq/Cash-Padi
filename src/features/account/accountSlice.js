@@ -37,7 +37,8 @@ export const accountSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      // We will also clear localStorage where the logout is dispatched
+      // Clear the persisted user data from localStorage
+      localStorage.removeItem("user");
     },
   },
 });
