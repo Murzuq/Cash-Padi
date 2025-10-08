@@ -12,7 +12,9 @@ const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 const AirtimePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const balance = useSelector((state) => state.account.balance);
+  const user = useSelector((state) => state.account.user);
+  const token = user?.token;
+  const balance = user?.user?.balance ?? 0;
   const [network, setNetwork] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -45,34 +47,34 @@ const AirtimePage = () => {
   };
 
   const handleConfirmPurchase = async (pin) => {
-    console.log("PIN entered:", pin);
     setIsConfirming(true);
+    setError("");
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/transactions/airtime",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            network,
+            phoneNumber,
+            amount: Number(amount),
+            pin,
+          }),
+        }
+      );
 
-    setIsConfirming(false);
-    setIsPinModalOpen(false);
+      const data = await response.json();
 
-    if (pin === "123456") {
-      setTransactionStatus({
-        status: "success",
-        title: "Purchase Successful!",
-        message: `You have successfully bought ₦${Number(
-          amount
-        ).toLocaleString()} airtime for ${phoneNumber}.`,
-      });
-    } else {
-      setTransactionStatus({
-        status: "error",
-        title: "Purchase Failed",
-        message: "You entered an incorrect PIN. Please try again.",
-      });
-    }
-    setIsStatusModalOpen(true);
+      if (!response.ok) {
+        throw new Error(data.message || "Purchase failed.");
+      }
 
-    // Add to transaction history on success
-    if (pin === "123456") {
+      // On success, update UI
       dispatch(
         transactionAdded({
           title: `${network} Airtime`,
@@ -82,6 +84,24 @@ const AirtimePage = () => {
           description: `Airtime for ${phoneNumber}`,
         })
       );
+
+      setTransactionStatus({
+        status: "success",
+        title: "Purchase Successful!",
+        message: `You have successfully bought ₦${Number(
+          amount
+        ).toLocaleString()} airtime for ${phoneNumber}.`,
+      });
+    } catch (err) {
+      setTransactionStatus({
+        status: "error",
+        title: "Purchase Failed",
+        message: err.message || "An unknown error occurred.",
+      });
+    } finally {
+      setIsConfirming(false);
+      setIsPinModalOpen(false);
+      setIsStatusModalOpen(true);
     }
   };
 

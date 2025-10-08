@@ -38,7 +38,9 @@ const dataPlans = {
 const DataPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const balance = useSelector((state) => state.account.balance);
+  const user = useSelector((state) => state.account.user);
+  const token = user?.token;
+  const balance = user?.user?.balance ?? 0;
   const [network, setNetwork] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [planId, setPlanId] = useState("");
@@ -72,32 +74,41 @@ const DataPage = () => {
   };
 
   const handleConfirmPurchase = async (pin) => {
-    console.log("PIN entered:", pin);
     setIsConfirming(true);
+    setError("");
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsConfirming(false);
-    setIsPinModalOpen(false);
-
-    if (pin === "123456") {
-      setTransactionStatus({
-        status: "success",
-        title: "Purchase Successful!",
-        message: `You have successfully bought ${selectedPlan.label} for ${phoneNumber}.`,
-      });
-    } else {
-      setTransactionStatus({
-        status: "error",
-        title: "Purchase Failed",
-        message: "You entered an incorrect PIN. Please try again.",
-      });
+    if (!selectedPlan) {
+      setError("No data plan selected.");
+      setIsConfirming(false);
+      return;
     }
-    setIsStatusModalOpen(true);
 
-    // Add to transaction history on success
-    if (pin === "123456" && selectedPlan) {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/transactions/data",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            network,
+            phoneNumber,
+            amount: selectedPlan.amount,
+            pin,
+            planLabel: selectedPlan.label,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Purchase failed.");
+      }
+
+      // On success, update UI
       dispatch(
         transactionAdded({
           title: `${network} Data`,
@@ -107,6 +118,22 @@ const DataPage = () => {
           description: `${selectedPlan.label} for ${phoneNumber}`,
         })
       );
+
+      setTransactionStatus({
+        status: "success",
+        title: "Purchase Successful!",
+        message: `You have successfully bought ${selectedPlan.label} for ${phoneNumber}.`,
+      });
+    } catch (err) {
+      setTransactionStatus({
+        status: "error",
+        title: "Purchase Failed",
+        message: err.message || "An unknown error occurred.",
+      });
+    } finally {
+      setIsConfirming(false);
+      setIsPinModalOpen(false);
+      setIsStatusModalOpen(true);
     }
   };
 

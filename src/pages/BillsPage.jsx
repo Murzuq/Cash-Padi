@@ -41,7 +41,9 @@ const getBillerDetails = (billerId) => {
 const BillsPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const balance = useSelector((state) => state.account.balance);
+  const user = useSelector((state) => state.account.user);
+  const token = user?.token;
+  const balance = user?.user?.balance ?? 0;
   const [category, setCategory] = useState("");
   const [billerId, setBillerId] = useState("");
   const [customerId, setCustomerId] = useState("");
@@ -76,35 +78,41 @@ const BillsPage = () => {
   };
 
   const handleConfirmPayment = async (pin) => {
-    console.log("PIN entered:", pin);
     setIsConfirming(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsConfirming(false);
-    setIsPinModalOpen(false);
+    setError("");
 
     const biller = getBillerDetails(billerId);
-    if (pin === "123456") {
-      setTransactionStatus({
-        status: "success",
-        title: "Payment Successful!",
-        message: `Your payment of ₦${Number(amount).toLocaleString()} to ${
-          biller.name
-        } was successful.`,
-      });
-    } else {
-      setTransactionStatus({
-        status: "error",
-        title: "Payment Failed",
-        message: "You entered an incorrect PIN. Please try again.",
-      });
+    if (!biller) {
+      setError("Biller details not found.");
+      setIsConfirming(false);
+      return;
     }
-    setIsStatusModalOpen(true);
 
-    // Add to transaction history on success
-    if (pin === "123456") {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/transactions/bill",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            billerName: biller.name,
+            customerId,
+            amount: Number(amount),
+            pin,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Payment failed.");
+      }
+
+      // On success, update UI
       dispatch(
         transactionAdded({
           title: biller.name,
@@ -114,6 +122,24 @@ const BillsPage = () => {
           description: `Payment for ${biller.name}`,
         })
       );
+
+      setTransactionStatus({
+        status: "success",
+        title: "Payment Successful!",
+        message: `Your payment of ₦${Number(amount).toLocaleString()} to ${
+          biller.name
+        } was successful.`,
+      });
+    } catch (err) {
+      setTransactionStatus({
+        status: "error",
+        title: "Payment Failed",
+        message: err.message || "An unknown error occurred.",
+      });
+    } finally {
+      setIsConfirming(false);
+      setIsPinModalOpen(false);
+      setIsStatusModalOpen(true);
     }
   };
 
