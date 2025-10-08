@@ -6,9 +6,18 @@ import {
   FaMobileAlt,
   FaFileInvoiceDollar,
   FaArrowUp,
+  FaShareAlt,
 } from "react-icons/fa";
 
-const Transaction = ({ title, type, amount, date, status }) => {
+const Transaction = ({
+  title,
+  type,
+  amount,
+  date,
+  status,
+  onShareClick,
+  ...rest
+}) => {
   const isCredit = amount > 0;
 
   // Formats the number as currency, e.g., 15000 -> ₦15,000
@@ -43,7 +52,7 @@ const Transaction = ({ title, type, amount, date, status }) => {
   const Icon = typeIcons[type] || <FaPaperPlane className="text-gray-500" />;
 
   return (
-    <li className="flex items-center justify-between py-2 gap-4">
+    <div className="flex items-center justify-between py-2 gap-4">
       <div className="flex items-center gap-4">
         <div className="bg-gray-100 p-3 rounded-full">{Icon}</div>
         <div>
@@ -69,8 +78,19 @@ const Transaction = ({ title, type, amount, date, status }) => {
         >
           {status}
         </span>
+        {onShareClick && (
+          <button
+            onClick={() =>
+              onShareClick({ title, type, amount, date, status, ...rest })
+            }
+            className="text-gray-400 hover:text-green-600 mt-1 ml-auto"
+            title="Share Receipt"
+          >
+            <FaShareAlt />
+          </button>
+        )}
       </div>
-    </li>
+    </div>
   );
 };
 

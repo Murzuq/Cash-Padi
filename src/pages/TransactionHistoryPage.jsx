@@ -9,6 +9,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import Transaction from "../components/Transaction.jsx";
+import ReceiptModal from "../components/ReceiptModal.jsx";
 
 const getUniqueTypes = (transactions) => {
   if (!transactions) return ["All"];
@@ -34,6 +35,8 @@ const TransactionHistoryPage = () => {
   const [endDate, setEndDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const uniqueTypes = useMemo(
     () => getUniqueTypes(transactions),
@@ -74,6 +77,11 @@ const TransactionHistoryPage = () => {
     setEndDate("");
     setFilterStatus("All");
     setIsFilterVisible(false);
+  };
+
+  const handleShareClick = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsReceiptModalOpen(true);
   };
 
   const activeFilterCount =
@@ -201,10 +209,13 @@ const TransactionHistoryPage = () => {
           <ul className="space-y-3">
             {filteredTransactions.length > 0 ? (
               filteredTransactions.map((transaction, index) => (
-                <span key={transaction._id || transaction.id}>
+                <li key={transaction._id || transaction.id}>
                   {index > 0 && <div className="border-t border-gray-200" />}
-                  <Transaction {...transaction} />
-                </span>
+                  <Transaction
+                    {...transaction}
+                    onShareClick={handleShareClick}
+                  />
+                </li>
               ))
             ) : (
               <p className="text-center text-gray-500 py-8">
@@ -214,6 +225,11 @@ const TransactionHistoryPage = () => {
           </ul>
         </div>
       </main>
+      <ReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        transaction={selectedTransaction}
+      />
     </>
   );
 };
