@@ -201,10 +201,10 @@ const TransactionHistoryPage = () => {
           <ul className="space-y-3">
             {filteredTransactions.length > 0 ? (
               filteredTransactions.map((transaction, index) => (
-                <li key={transaction._id || transaction.id}>
+                <span key={transaction._id || transaction.id}>
                   {index > 0 && <div className="border-t border-gray-200" />}
                   <Transaction {...transaction} />
-                </li>
+                </span>
               ))
             ) : (
               <p className="text-center text-gray-500 py-8">
