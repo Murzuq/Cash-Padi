@@ -63,7 +63,7 @@ const TransferPage = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.account.user);
   const token = user?.token;
-  const balance = user?.balance || 0;
+  const balance = user?.user?.balance ?? 0;
 
   const [transferType, setTransferType] = useState("cashpadi"); // 'cashpadi' or 'other'
   const [accountNumber, setAccountNumber] = useState("");
@@ -138,25 +138,34 @@ const TransferPage = () => {
   };
 
   const handleConfirmTransfer = async (pin) => {
-    console.log("PIN entered:", pin);
     setIsConfirming(true);
+    setError("");
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/transactions/transfer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            to: accountNumber,
+            amount: Number(amount),
+            pin,
+            narration,
+          }),
+        }
+      );
 
-    setIsConfirming(false);
-    setIsPinModalOpen(false);
+      const data = await response.json();
 
-    // Mock success/failure based on PIN
-    if (pin === "123456") {
-      setTransactionStatus({
-        status: "success",
-        title: "Transfer Successful!",
-        message: `You have successfully sent ₦${Number(
-          amount
-        ).toLocaleString()} to ${recipientName}.`,
-      });
-      // Dispatch the action to add the transaction to the Redux store
+      if (!response.ok) {
+        throw new Error(data.message || "Transfer failed.");
+      }
+
+      // On success, update UI
       dispatch(
         transactionAdded({
           title: `To ${recipientName}`,
@@ -166,14 +175,25 @@ const TransferPage = () => {
           description: narration || `Transfer to ${recipientName}`,
         })
       );
-    } else {
+
+      setTransactionStatus({
+        status: "success",
+        title: "Transfer Successful!",
+        message: `You have successfully sent ₦${Number(
+          amount
+        ).toLocaleString()} to ${recipientName}.`,
+      });
+    } catch (err) {
       setTransactionStatus({
         status: "error",
         title: "Transfer Failed",
-        message: "You entered an incorrect PIN. Please try again.",
+        message: err.message || "An unknown error occurred.",
       });
+    } finally {
+      setIsConfirming(false);
+      setIsPinModalOpen(false);
+      setIsStatusModalOpen(true);
     }
-    setIsStatusModalOpen(true);
   };
 
   return (

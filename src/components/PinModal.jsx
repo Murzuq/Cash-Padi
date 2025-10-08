@@ -9,13 +9,14 @@ const PinModal = ({
   details,
   isConfirming,
 }) => {
-  const [pin, setPin] = useState(new Array(6).fill(""));
+  const pinLength = 4;
+  const [pin, setPin] = useState(new Array(pinLength).fill(""));
   const inputRefs = useRef([]);
 
   useEffect(() => {
     if (isOpen) {
       // Reset pin and focus on the first input when the modal opens
-      setPin(new Array(6).fill(""));
+      setPin(new Array(pinLength).fill(""));
       inputRefs.current[0]?.focus();
     }
   }, [isOpen]);
@@ -40,17 +41,17 @@ const PinModal = ({
 
   const handlePaste = (e) => {
     const pastedData = e.clipboardData.getData("text");
-    if (!/^\d{6}$/.test(pastedData)) {
-      return; // Only paste if it's exactly 6 digits
+    if (!new RegExp(`^\\d{${pinLength}}$`).test(pastedData)) {
+      return; // Only paste if it's exactly `pinLength` digits
     }
     const newPin = pastedData.split("");
     setPin(newPin);
-    inputRefs.current[5].focus();
+    inputRefs.current[pinLength - 1].focus();
   };
 
   const handleSubmit = () => {
     const finalPin = pin.join("");
-    if (finalPin.length === 6) {
+    if (finalPin.length === pinLength) {
       onConfirm(finalPin);
     }
   };
@@ -80,7 +81,7 @@ const PinModal = ({
 
         <div className="mb-6">
           <p className="text-center text-sm font-medium text-gray-600 mb-2">
-            Enter your 6-digit PIN
+            Enter your 4-digit PIN
           </p>
           <div className="flex justify-center gap-2" onPaste={handlePaste}>
             {pin.map((data, index) => (

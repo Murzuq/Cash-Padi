@@ -1,31 +1,120 @@
 import express from "express";
-import { body } from "express-validator";
-import { register, login, getMe } from "../controllers/authController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { check, validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 const router = express.Router();
 
+// @route   POST api/auth/register
+// @desc    Register a user
+// @access  Public
 router.post(
   "/register",
   [
-    body("fullName", "Full name is required").not().isEmpty(),
-    body("email", "Please include a valid email").isEmail(),
-    body("password", "Password must be 6 or more characters").isLength({
-      min: 6,
-    }),
+    check("fullName", "Full name is required").not().isEmpty(),
+    check("email", "Please include a valid email").isEmail(),
+    check(
+      "password",
+      "Please enter a password with 6 or more characters"
+    ).isLength({ min: 6 }),
   ],
-  register
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { fullName, email, password } = req.body;
+
+    try {
+      let user = await User.findOne({ email });
+
+      if (user) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      user = new User({
+        fullName,
+        email,
+        password,
+        pin: "1234", // Set a default PIN for new users
+      });
+
+      await user.save();
+
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: "5h" },
+        (err, token) => {
+          if (err) throw err;
+          // Don't send back password/pin in the response
+          const userResponse = user.toObject();
+          delete userResponse.password;
+          delete userResponse.pin;
+          res.json({ token, user: userResponse });
+        }
+      );
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Server error");
+    }
+  }
 );
 
+// @route   POST api/auth/login
+// @desc    Authenticate user & get token
+// @access  Public
 router.post(
   "/login",
   [
-    body("email", "Please include a valid email").isEmail(),
-    body("password", "Password is required").exists(),
+    check("email", "Please include a valid email").isEmail(),
+    check("password", "Password is required").exists(),
   ],
-  login
-);
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-router.get("/me", protect, getMe);
+    const { email, password } = req.body;
+
+    try {
+      let user = await User.findOne({ email }).select("+password");
+      if (!user) {
+        return res.status(400).json({ message: "Invalid Credentials" });
+      }
+
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid Credentials" });
+      }
+
+      // The rest of the login logic (JWT signing) is the same as in registration
+      // This part can be refactored into a helper function later.
+      const payload = { user: { id: user.id } };
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: "5h" },
+        (err, token) => {
+          if (err) throw err;
+          const userResponse = user.toObject();
+          delete userResponse.password;
+          res.json({ token, user: userResponse });
+        }
+      );
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Server error");
+    }
+  }
+);
 
 export default router;

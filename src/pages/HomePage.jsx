@@ -22,10 +22,14 @@ const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   // Use Redux's useSelector to get state from the store
-  const user = useSelector((state) => state.account.user);
-  const transactions = useSelector((state) => state.account.transactions);
-  const { balance, accountNumber, fullName } = user || {};
-  console.log("user from Redux:", user);
+  const { user } = useSelector((state) => state.account); // Select the top-level user object
+
+  // Safely access nested properties
+  const balance = user?.user?.balance ?? 0;
+  const accountNumber = user?.user?.accountNumber;
+  const fullName = user?.user?.fullName;
+  const transactions = user?.user?.transactions || []; // Default to an empty array
+  console.log("User data from Redux:", user);
 
   const toggleBalanceVisibility = () => {
     setIsBalanceVisible(!isBalanceVisible);
@@ -45,7 +49,7 @@ const HomePage = () => {
   const formattedBalance = new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
-  }).format(balance || 0);
+  }).format(balance);
   const displayedTransactions = transactions.slice(0, 3);
 
   return (
@@ -163,10 +167,10 @@ const HomePage = () => {
             </div>
             <ul className="space-y-3">
               {displayedTransactions.map((transaction, index) => (
-                <div key={transaction.id}>
-                  {index > 0 && <li className="border-t border-gray-200" />}
+                <span key={transaction.id}>
+                  {index > 0 && <div className="border-t border-gray-200" />}
                   <Transaction {...transaction} />
-                </div>
+                </span>
               ))}
             </ul>
           </div>
