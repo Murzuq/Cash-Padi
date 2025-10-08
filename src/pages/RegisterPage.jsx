@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../features/account/accountSlice";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const RegisterPage = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -36,17 +38,13 @@ const RegisterPage = () => {
     }
 
     try {
-      const response = await fetch(
-        "https://cash-padi.onrender.com/api/auth/register" ||
-          "http://localhost:5000/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fullName, email, password }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fullName, email, password }),
+      });
 
       const data = await response.json();
 
