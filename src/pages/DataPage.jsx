@@ -3,7 +3,7 @@ import { FaArrowLeft, FaMobileAlt, FaWifi } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
-import { API_URL } from "../config"; // Import API_URL
+import { API_URL, API_ENDPOINTS } from "../config"; // Import API_URL and API_ENDPOINTS
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
 import { setUserData } from "../features/account/accountSlice"; // Import setUserData
@@ -108,11 +108,16 @@ const DataPage = () => {
 
       // On success, update UI
       // Refetch user data to get updated balance and transactions
-      const userResponse = await fetch(`${API_URL}/api/auth/me`, {
+      const userResponse = await fetch(API_ENDPOINTS.GET_ME, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const updatedUser = await userResponse.json();
-      dispatch(setUserData(updatedUser)); // Dispatch action to update the whole user object
+      dispatch(
+        setUserData({
+          ...user, // Keep existing data like the token
+          user: updatedUser, // Only update the nested user object with fresh data
+        })
+      ); // Dispatch action to update the whole user object
 
       setTransactionStatus({
         status: "success",
