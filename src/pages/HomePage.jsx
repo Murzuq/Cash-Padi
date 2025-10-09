@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
+  FaPaperPlane as FaSend,
   FaMicrophone,
   FaRegMoneyBillAlt,
   FaPiggyBank,
@@ -16,12 +17,22 @@ import {
 
 import { useSelector } from "react-redux";
 import Transaction from "../components/Transaction.jsx";
+import { useFinancialAssistant } from "../hooks/useFinancialAssistant.js";
 import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 
 const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const [textInput, setTextInput] = useState("");
   // Use Redux's useSelector to get state from the store
+  const {
+    processVoiceCommand,
+    processTextCommand,
+    response,
+    error,
+    isProcessing,
+  } = useFinancialAssistant();
   const { user } = useSelector((state) => state.account); // Select the top-level user object
 
   // Safely access nested properties
@@ -45,6 +56,45 @@ const HomePage = () => {
     }
   };
 
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      const audioChunks = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        processVoiceCommand(audioBlob);
+        // Stop all tracks to release the microphone
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorderRef.current.start();
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      // You might want to set an error state here to inform the user
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  const handleTextSubmit = (e) => {
+    e.preventDefault();
+    if (textInput.trim()) {
+      processTextCommand(textInput);
+    }
+  };
   // Format the balance from the context
   const formattedBalance = new Intl.NumberFormat("en-NG", {
     style: "currency",
@@ -100,11 +150,54 @@ const HomePage = () => {
 
             {/* Voice Command Area */}
             <div className="mt-8 bg-green-50 p-4 rounded-lg border border-green-200">
-              <button className="w-full flex flex-col items-center justify-center text-center text-green-800 hover:bg-green-100 p-4 rounded-md transition duration-300">
+              <button
+                onMouseDown={handleStartRecording}
+                onMouseUp={handleStopRecording}
+                onTouchStart={handleStartRecording}
+                onTouchEnd={handleStopRecording}
+                disabled={isProcessing}
+                className="w-full flex flex-col items-center justify-center text-center text-green-800 hover:bg-green-100 p-4 rounded-md transition duration-300 disabled:opacity-50 disabled:cursor-wait"
+              >
                 <FaMicrophone className="text-4xl mb-2" />
-                <span className="font-semibold">Tap to Speak</span>
+                <span className="font-semibold">
+                  {isProcessing ? "Processing..." : "Hold to Speak"}
+                </span>
                 <span className="text-sm">(Soro Bayi)</span>
               </button>
+              {/* Text Input Area */}
+              <form
+                onSubmit={handleTextSubmit}
+                className="mt-4 flex items-center space-x-2"
+              >
+                <input
+                  type="text"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Or type your command..."
+                  disabled={isProcessing}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
+                />
+                <button
+                  type="submit"
+                  disabled={isProcessing || !textInput.trim()}
+                  className="p-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  aria-label="Send text command"
+                >
+                  <FaSend />
+                </button>
+              </form>
+
+              {/* Display Gemini Response or Error */}
+              {response && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-800">
+                  <p>{response}</p>
+                </div>
+              )}
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-800">
+                  <p>Error: {error}</p>
+                </div>
+              )}
             </div>
           </div>
 
