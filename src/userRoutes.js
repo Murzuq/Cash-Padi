@@ -1,5 +1,4 @@
 import express from "express";
-import { verifyAccount } from "../controllers/userController.js";
 import auth from "../middleware/auth.js";
 import User from "../models/User.js";
 
@@ -21,8 +20,5 @@ router.get("/me", auth, async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
-
-// This defines the endpoint that your frontend is trying to reach
-router.post("/verify-account", auth, verifyAccount);
 
 export default router;
