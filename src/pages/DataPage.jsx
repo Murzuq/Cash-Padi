@@ -3,10 +3,10 @@ import { FaArrowLeft, FaMobileAlt, FaWifi } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
-import { API_URL } from "../config";
+import { API_URL } from "../config"; // Import API_URL
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
-import { transactionAdded } from "../features/account/accountSlice";
+import { setUserData } from "../features/account/accountSlice"; // Import setUserData
 // Mock network providers and their data plans
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
 const dataPlans = {
@@ -107,15 +107,12 @@ const DataPage = () => {
       }
 
       // On success, update UI
-      dispatch(
-        transactionAdded({
-          title: `${network} Data`,
-          type: "Data",
-          amount: -selectedPlan.amount,
-          status: "Completed",
-          description: `${selectedPlan.label} for ${phoneNumber}`,
-        })
-      );
+      // Refetch user data to get updated balance and transactions
+      const userResponse = await fetch(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const updatedUser = await userResponse.json();
+      dispatch(setUserData(updatedUser)); // Dispatch action to update the whole user object
 
       setTransactionStatus({
         status: "success",

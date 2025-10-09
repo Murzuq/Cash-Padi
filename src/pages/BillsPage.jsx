@@ -7,10 +7,10 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../config";
 import { useSelector, useDispatch } from "react-redux";
 
-import { transactionAdded } from "../features/account/accountSlice";
+import { API_URL } from "../config"; // Import API_URL
+import { setUserData } from "../features/account/accountSlice"; // Import setUserData
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
 // Mock data for billers
@@ -111,15 +111,12 @@ const BillsPage = () => {
       }
 
       // On success, update UI
-      dispatch(
-        transactionAdded({
-          title: biller.name,
-          type: "Bills",
-          amount: -Number(amount),
-          status: "Completed",
-          description: `Payment for ${biller.name}`,
-        })
-      );
+      // Refetch user data to get updated balance and transactions
+      const userResponse = await fetch(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const updatedUser = await userResponse.json();
+      dispatch(setUserData(updatedUser)); // Dispatch action to update the whole user object
 
       setTransactionStatus({
         status: "success",

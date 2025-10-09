@@ -30,36 +30,23 @@ export const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
-    transactionAdded: (state, action) => {
-      // Check if the nested user object exists
-      if (state.user && state.user.user) {
-        // Ensure transactions array exists before attempting to unshift
-        if (!state.user.user.transactions) {
-          state.user.user.transactions = [];
-        }
-        const newTransaction = {
-          id: new Date().toISOString(), // Use a temporary unique ID
-          date: new Date().toISOString(),
-          ...action.payload,
-        };
-        // Add to the beginning of the array within the nested user object
-        state.user.user.transactions.unshift(newTransaction);
-        // Update balance within the nested user object
-        state.user.user.balance += newTransaction.amount;
-        // Update localStorage to persist the changes
-        localStorage.setItem("user", JSON.stringify(state.user));
+    // This reducer is used to completely replace the user state with fresh data
+    // from the backend (e.g., after login or a successful transaction).
+    setUserData: (state, action) => {
+      // action.payload is expected to be { user: { ... }, token: "..." } from the API
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      // Defensive check: Ensure transactions array exists within the nested user object
+      if (state.user && state.user.user && !state.user.user.transactions) {
+        state.user.user.transactions = [];
       }
+      // Update localStorage after setting user data
+      localStorage.setItem("user", JSON.stringify(state.user));
     },
     login: (state, action) => {
       // action.payload is expected to be { token: "...", user: { ... } } from the API
-      state.user = action.payload;
-      state.isAuthenticated = true;
-      // Defensive check: Ensure transactions array exists for new users
-      if (state.user && !state.user.transactions) {
-        state.user.transactions = [];
-      }
-      // Update localStorage after login
-      localStorage.setItem("user", JSON.stringify(state.user));
+      // The login action now simply calls setUserData to handle the state update
+      accountSlice.caseReducers.setUserData(state, action);
     },
     logout: (state) => {
       state.user = null;
@@ -70,6 +57,6 @@ export const accountSlice = createSlice({
   },
 });
 
-export const { transactionAdded, login, logout } = accountSlice.actions;
+export const { setUserData, login, logout } = accountSlice.actions;
 
 export default accountSlice.reducer;
