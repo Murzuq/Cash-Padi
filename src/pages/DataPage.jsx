@@ -3,6 +3,7 @@ import { FaArrowLeft, FaMobileAlt, FaWifi } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
+import { API_URL } from "../config";
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
 import { transactionAdded } from "../features/account/accountSlice";
@@ -34,8 +35,6 @@ const dataPlans = {
     { id: "9mobile4", label: "40GB - 30 days", amount: 10000 },
   ],
 };
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const DataPage = () => {
   const navigate = useNavigate();

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 import { login } from "../features/account/accountSlice";
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const RegisterPage = () => {
   const [fullName, setFullName] = useState("");

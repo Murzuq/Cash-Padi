@@ -3,13 +3,12 @@ import { FaArrowLeft, FaMobileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
+import { API_URL } from "../config";
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
 import { transactionAdded } from "../features/account/accountSlice";
 // Mock network providers
 const networks = ["MTN", "Airtel", "Glo", "9mobile"];
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const AirtimePage = () => {
   const navigate = useNavigate();

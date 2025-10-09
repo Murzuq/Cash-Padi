@@ -7,6 +7,7 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 import { useSelector, useDispatch } from "react-redux";
 
 import { transactionAdded } from "../features/account/accountSlice";
@@ -37,8 +38,6 @@ const getBillerDetails = (billerId) => {
   }
   return null;
 };
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const BillsPage = () => {
   const navigate = useNavigate();

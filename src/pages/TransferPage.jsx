@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import PinModal from "../components/PinModal";
 import StatusModal from "../components/StatusModal";
 import { transactionAdded } from "../features/account/accountSlice";
+import { API_URL } from "../config";
 const banks = [
   "Access Bank",
   "Citibank",
@@ -26,8 +27,6 @@ const banks = [
   "Wema Bank",
   "Zenith Bank",
 ].sort();
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 // Mock recipient verification
 const verifyRecipient = async (accountNumber, bank, token) => {
