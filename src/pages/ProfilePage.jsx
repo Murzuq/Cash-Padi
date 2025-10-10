@@ -8,6 +8,7 @@ import {
   FaSignOutAlt,
   FaEdit,
   FaArrowLeft,
+  FaKey,
 } from "react-icons/fa";
 import { logout } from "../features/account/accountSlice";
 
@@ -91,15 +92,23 @@ const ProfilePage = () => {
           </div>
 
           <div className="p-6 bg-gray-50/50">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
                 onClick={() => {
                   /* Navigate to edit profile page */
                 }}
-                className="w-full flex items-center justify-center space-x-2 py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-all"
+                className="w-full flex items-center justify-center space-x-2 py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50"
+                disabled
               >
                 <FaEdit />
                 <span>Edit Profile</span>
+              </button>
+              <button
+                onClick={() => navigate("/set-pin")}
+                className="w-full flex items-center justify-center space-x-2 py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-all"
+              >
+                <FaKey />
+                <span>Set/Change PIN</span>
               </button>
               <button
                 onClick={handleLogout}

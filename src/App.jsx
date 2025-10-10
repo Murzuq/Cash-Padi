@@ -13,6 +13,7 @@ import BillsPage from "./pages/BillsPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProfilePage from "./pages/ProfilePage";
+import SetPinPage from "./pages/SetPinPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
           { path: "bills", element: <BillsPage /> },
           { path: "history", element: <TransactionHistoryPage /> },
           { path: "profile", element: <ProfilePage /> },
+          { path: "set-pin", element: <SetPinPage /> },
         ],
       },
     ],
