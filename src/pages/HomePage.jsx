@@ -110,9 +110,12 @@ const HomePage = () => {
           {/* Balance and Voice Command */}
           {fullName && (
             <div className="flex justify-between items-center">
-              <div className="text-2xl font-semibold text-gray-800">
+              <Link
+                to="/profile"
+                className="text-2xl font-semibold text-gray-800 hover:text-emerald-600 transition-colors"
+              >
                 <h2>Welcome back, {fullName.split(" ")[0]}!</h2>
-              </div>
+              </Link>
               <LanguageSwitcher />
             </div>
           )}

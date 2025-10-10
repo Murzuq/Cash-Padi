@@ -12,6 +12,7 @@ import DataPage from "./pages/DataPage";
 import BillsPage from "./pages/BillsPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
           { path: "data", element: <DataPage /> },
           { path: "bills", element: <BillsPage /> },
           { path: "history", element: <TransactionHistoryPage /> },
+          { path: "profile", element: <ProfilePage /> },
         ],
       },
     ],
