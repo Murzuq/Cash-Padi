@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import PinModal from "../components/PinModal";
 import { API_URL } from "../config";
 import GoalProgressCard, {
   GoalProgressCardSkeleton,
@@ -36,6 +37,10 @@ const GoalSaverPage = () => {
   const [isLocking, setIsLocking] = useState(false);
   const [lockDuration, setLockDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingGoalData, setPendingGoalData] = useState(null);
+  const [pendingLockData, setPendingLockData] = useState(null);
+  const [isPinModalOpenForGoal, setIsPinModalOpenForGoal] = useState(false);
+  const [isPinModalOpenForLock, setIsPinModalOpenForLock] = useState(false);
   const [aiNudge, setAiNudge] = useState("Analyzing your savings habits...");
   const token = useSelector((state) => state.account.user?.token);
 
@@ -87,7 +92,14 @@ const GoalSaverPage = () => {
     fetchSavingsData();
   }, [token]);
 
-  const handleCreateGoal = async (newGoalData) => {
+  const initiateCreateGoal = (newGoalData) => {
+    setPendingGoalData(newGoalData);
+    setCreateModalOpen(false);
+    setIsPinModalOpenForGoal(true);
+  };
+
+  const handleConfirmCreateGoal = async (pin) => {
+    if (!pendingGoalData) return;
     setIsCreatingGoal(true);
     try {
       const response = await fetch(`${API_URL}/api/users/savings-goals`, {
@@ -96,21 +108,22 @@ const GoalSaverPage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newGoalData),
+        body: JSON.stringify({ ...pendingGoalData, pin }),
       });
       const data = await response.json();
       if (response.ok) {
         setActiveGoal(data.goal); // Set the newly created goal as active
-        setCreateModalOpen(false);
         toast.success("Savings goal created successfully!");
       } else {
         toast.error(data.message || "Failed to create goal.");
       }
     } catch (error) {
       console.error("Error creating goal:", error);
-      toast.error("Network error creating goal.");
+      toast.error("An error occurred while creating the goal.");
     } finally {
       setIsCreatingGoal(false);
+      setIsPinModalOpenForGoal(false);
+      setPendingGoalData(null);
     }
   };
 
@@ -153,22 +166,37 @@ const GoalSaverPage = () => {
     setLockModalOpen(true);
   };
 
-  const handleConfirmLock = async (amountToLock) => {
-    setIsLocking(true);
-    // NOTE: Backend call would go here.
-    // For now, we'll simulate a delay.
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const formattedAmount = new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: "NGN",
-    }).format(amountToLock);
-
-    setIsLocking(false);
+  const initiateLockFunds = (amountToLock) => {
+    setPendingLockData({ amount: amountToLock, duration: lockDuration });
     setLockModalOpen(false);
-    toast.success(
-      `${formattedAmount} has been locked for ${lockDuration} months!`
-    );
+    setIsPinModalOpenForLock(true);
+  };
+
+  const handleConfirmLock = async (pin) => {
+    if (!pendingLockData) return;
+    setIsLocking(true);
+    try {
+      // NOTE: Backend call would go here.
+      // For now, we'll simulate a delay and show a success message.
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const formattedAmount = new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+      }).format(pendingLockData.amount);
+
+      toast.success(
+        `${formattedAmount} has been locked for ${pendingLockData.duration} months!`
+      );
+      // In a real app, you would refetch the locked funds list here.
+    } catch (error) {
+      console.error("Error locking funds:", error);
+      toast.error("An error occurred while locking funds.");
+    } finally {
+      setIsLocking(false);
+      setIsPinModalOpenForLock(false);
+      setPendingLockData(null);
+    }
   };
 
   // Mock data for locked funds - in a real app, this would come from the backend
@@ -248,7 +276,7 @@ const GoalSaverPage = () => {
       <CreateGoalModal
         isOpen={isCreateModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        onCreate={handleCreateGoal}
+        onCreate={initiateCreateGoal}
         isLoading={isCreatingGoal}
       />
       <DepositModal
@@ -260,10 +288,43 @@ const GoalSaverPage = () => {
       <LockFundsModal
         isOpen={isLockModalOpen}
         onClose={() => setLockModalOpen(false)}
-        onConfirm={handleConfirmLock}
+        onConfirm={initiateLockFunds}
         duration={lockDuration}
         isLoading={isLocking}
         currentBalance={activeGoal?.currentAmount || 0}
+      />
+      <PinModal
+        isOpen={isPinModalOpenForGoal}
+        onClose={() => setIsPinModalOpenForGoal(false)}
+        onConfirm={handleConfirmCreateGoal}
+        title="Confirm Goal Creation"
+        isConfirming={isCreatingGoal}
+        details={
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500">You are creating the goal:</p>
+            <p className="text-xl font-bold text-gray-800">
+              {pendingGoalData?.name}
+            </p>
+          </div>
+        }
+      />
+      <PinModal
+        isOpen={isPinModalOpenForLock}
+        onClose={() => setIsPinModalOpenForLock(false)}
+        onConfirm={handleConfirmLock}
+        title="Confirm Lock Funds"
+        isConfirming={isLocking}
+        details={
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500">You are locking:</p>
+            <p className="text-2xl font-bold text-gray-800">
+              {new Intl.NumberFormat("en-NG", {
+                style: "currency",
+                currency: "NGN",
+              }).format(pendingLockData?.amount || 0)}
+            </p>
+          </div>
+        }
       />
     </>
   );
