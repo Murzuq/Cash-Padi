@@ -18,6 +18,7 @@ import {
 import { useSelector } from "react-redux";
 import Transaction from "../components/Transaction.jsx";
 import { useFinancialAssistant } from "../hooks/useFinancialAssistant.js";
+import { useDataRefetch } from "../hooks/useDataRefetch.js";
 import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 
 const HomePage = () => {
@@ -34,6 +35,9 @@ const HomePage = () => {
     isProcessing,
   } = useFinancialAssistant();
   const { user } = useSelector((state) => state.account); // Select the top-level user object
+
+  // Automatically refetch data when the tab becomes visible
+  useDataRefetch();
 
   // Safely access nested properties
   const balance = user?.user?.balance ?? 0;
