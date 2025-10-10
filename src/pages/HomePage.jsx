@@ -294,7 +294,10 @@ const HomePage = () => {
           </div>
 
           {/* Start Micro-Savings */}
-          <div className="bg-white p-6 rounded-xl shadow-lg flex items-start space-x-4">
+          <Link
+            to="/savings"
+            className="bg-white p-6 rounded-xl shadow-lg flex items-start space-x-4 hover:bg-green-50/50 transition-colors"
+          >
             <div className="bg-green-100 p-3 rounded-full">
               <FaPiggyBank className="text-2xl text-green-700" />
             </div>
@@ -306,7 +309,7 @@ const HomePage = () => {
                 Set a goal for market expansion or school fees.
               </p>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </main>

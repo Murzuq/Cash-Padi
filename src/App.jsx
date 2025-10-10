@@ -14,6 +14,7 @@ import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProfilePage from "./pages/ProfilePage";
 import SetPinPage from "./pages/SetPinPage";
+import GoalSaverPage from "./pages/GoalSaverPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
           { path: "history", element: <TransactionHistoryPage /> },
           { path: "profile", element: <ProfilePage /> },
           { path: "set-pin", element: <SetPinPage /> },
+          { path: "savings", element: <GoalSaverPage /> }, // This route makes the page available
         ],
       },
     ],
