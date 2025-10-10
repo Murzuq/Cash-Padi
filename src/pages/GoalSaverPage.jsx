@@ -8,6 +8,7 @@ import {
   FaExclamationTriangle,
   FaTimes,
   FaArrowLeft,
+  FaCalendarCheck,
   FaBullseye,
   FaSpinner, // Assuming you might want this for the modal
 } from "react-icons/fa";
@@ -527,22 +528,31 @@ const LockFundsModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl transform transition-all">
-        <div className="text-center">
-          <FaLock className="text-4xl text-blue-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800">
-            Lock for {duration} Months
-          </h2>
-          <p className="text-gray-600 mt-2">
-            And earn a{" "}
-            <span className="font-bold text-emerald-600">
-              {interestRateDisplay} p.a.
-            </span>{" "}
-            interest rate!
-          </p>
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl transform transition-all">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <FaLock className="text-2xl text-blue-500" />
+            <h2 className="text-2xl font-bold text-gray-800">Lock Funds</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-800"
+          >
+            <FaTimes size={24} />
+          </button>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="p-6 space-y-4">
+          <div className="text-center mb-4">
+            <p className="text-gray-600">
+              Lock for <span className="font-bold">{duration} months</span> and
+              earn a{" "}
+              <span className="font-bold text-emerald-600">
+                {interestRateDisplay} p.a.
+              </span>{" "}
+              interest rate!
+            </p>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Amount to Lock (₦)
@@ -582,16 +592,10 @@ const LockFundsModal = ({
           </div>
         </div>
 
-        <div className="mt-8 flex gap-4">
-          <button
-            onClick={onClose}
-            className="w-full py-3 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all"
-          >
-            Cancel
-          </button>
+        <div className="p-6 pt-2">
           <button
             onClick={() => onConfirm(amount)}
-            className="w-full flex justify-center items-center py-3 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="w-full flex justify-center items-center py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all disabled:opacity-50"
             // disabled={
             //   isLoading ||
             //   !amount ||
@@ -608,6 +612,87 @@ const LockFundsModal = ({
             )}
           </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const LockedSavingsCard = ({ lockedFunds = [] }) => {
+  const interestRates = {
+    3: 0.075,
+    6: 0.1,
+    12: 0.125,
+  };
+
+  const formatCurrency = (num) =>
+    new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(num);
+
+  const totalLocked = useMemo(
+    () => lockedFunds.reduce((acc, lock) => acc + lock.amount, 0),
+    [lockedFunds]
+  );
+
+  if (lockedFunds.length === 0) {
+    return (
+      <div className="bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-gray-200 text-center">
+        <FaLock className="text-3xl text-gray-400 mx-auto mb-3" />
+        <h3 className="text-lg font-bold text-gray-800">Your Locked Savings</h3>
+        <p className="text-sm text-gray-500 mt-1">
+          You have no locked funds yet. Lock savings to earn higher interest.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-gray-200 space-y-4">
+      <h3 className="text-lg font-bold text-gray-800">Your Locked Savings</h3>
+      <div className="bg-blue-50 p-4 rounded-lg flex justify-around text-center">
+        <div>
+          <p className="text-sm text-blue-800 font-semibold">Total Locked</p>
+          <p className="text-xl font-bold text-blue-900">
+            {formatCurrency(totalLocked)}
+          </p>
+        </div>
+      </div>
+      <div className="space-y-3 pt-2">
+        {lockedFunds.map((lock) => {
+          const unlockDate = new Date(lock.lockDate);
+          unlockDate.setMonth(unlockDate.getMonth() + lock.duration);
+          const annualRate = interestRates[lock.duration] || 0;
+
+          return (
+            <div
+              key={lock.id}
+              className="bg-gray-50 p-3 rounded-lg border border-gray-200"
+            >
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-bold text-gray-800">
+                  {formatCurrency(lock.amount)}
+                </p>
+                <span className="text-sm font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full">
+                  {`${(annualRate * 100).toFixed(1)}% p.a.`}
+                </span>
+              </div>
+              <div className="flex items-center text-sm text-gray-500 mt-1">
+                <FaCalendarCheck className="mr-2" />
+                <span>
+                  Unlocks on{" "}
+                  {unlockDate.toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -774,6 +859,22 @@ const GoalSaverPage = () => {
     );
   };
 
+  // Mock data for locked funds - in a real app, this would come from the backend
+  const [lockedFunds, setLockedFunds] = useState([
+    {
+      id: 1,
+      amount: 50000,
+      duration: 6,
+      lockDate: "2024-05-15T10:00:00.000Z",
+    },
+    {
+      id: 2,
+      amount: 25000,
+      duration: 3,
+      lockDate: "2024-07-01T10:00:00.000Z",
+    },
+  ]);
+
   return (
     <>
       <main className="relative min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -824,6 +925,7 @@ const GoalSaverPage = () => {
                 Safety & Flexibility
               </h2>
               <LockFundsCard onLockClick={handleOpenLockModal} />
+              <LockedSavingsCard lockedFunds={lockedFunds} />
               <EmergencyWithdrawalCard />
             </div>
           </div>
