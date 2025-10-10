@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { genAI } from "../gemini/config";
+import { setUserData } from "../features/account/accountSlice";
 import { secureBackendCall } from "../utils/secureBackend";
 
 // Define the Tool Schemas for the Gemini model
@@ -18,10 +19,14 @@ const tools = [
         parameters: {
           type: "OBJECT",
           properties: {
-            recipient: { type: "STRING" },
+            recipientAccountNumber: {
+              type: "STRING",
+              description:
+                "The 10-digit account number of the person to receive the money.",
+            },
             amount: { type: "NUMBER" },
           },
-          required: ["recipient", "amount"],
+          required: ["recipientAccountNumber", "amount"],
         },
       },
       {
@@ -37,6 +42,50 @@ const tools = [
           required: ["earnings", "riskProfile"],
         },
       },
+      {
+        name: "buyAirtime",
+        description: "Purchases airtime for a specified phone number.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            network: {
+              type: "STRING",
+              enum: ["MTN", "Airtel", "Glo", "9mobile"],
+            },
+            phoneNumber: { type: "STRING" },
+            amount: { type: "NUMBER" },
+          },
+          required: ["network", "phoneNumber", "amount"],
+        },
+      },
+      {
+        name: "payBill",
+        description: "Pays a utility bill, like electricity or cable TV.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            billerName: {
+              type: "STRING",
+              description: "e.g., 'Ikeja Electric', 'DSTV'",
+            },
+            customerId: {
+              type: "STRING",
+              description: "The meter number or account ID for the bill.",
+            },
+            amount: { type: "NUMBER" },
+          },
+          required: ["billerName", "customerId", "amount"],
+        },
+      },
+      {
+        name: "getSavingsTips",
+        description:
+          "Provides personalized tips for saving money based on spending habits.",
+        parameters: {
+          type: "OBJECT",
+          properties: {},
+        },
+      },
     ],
   },
 ];
@@ -45,7 +94,9 @@ export const useFinancialAssistant = () => {
   const [response, setResponse] = useState("");
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const token = useSelector((state) => state.account.user?.token);
+  const user = useSelector((state) => state.account.user);
+  const token = user?.token;
+  const dispatch = useDispatch();
 
   const processVoiceCommand = useCallback(
     async (audioData) => {
@@ -91,6 +142,15 @@ export const useFinancialAssistant = () => {
             call.args,
             token
           );
+          const apiResponseData = JSON.parse(apiResponse);
+
+          // If the backend call returned updated user data, dispatch it to Redux
+          if (apiResponseData.updatedUser) {
+            dispatch(
+              setUserData({ ...user, user: apiResponseData.updatedUser })
+            );
+            delete apiResponseData.updatedUser; // Don't send this back to Gemini
+          }
 
           // Send the result back to the model
           const result2 = await chat.sendMessage([
@@ -114,7 +174,7 @@ export const useFinancialAssistant = () => {
         setIsProcessing(false);
       }
     },
-    [token]
+    [token, dispatch, user]
   );
 
   const processTextCommand = useCallback(
@@ -143,6 +203,15 @@ export const useFinancialAssistant = () => {
             call.args,
             token
           );
+          const apiResponseData = JSON.parse(apiResponse);
+
+          // If the backend call returned updated user data, dispatch it to Redux
+          if (apiResponseData.updatedUser) {
+            dispatch(
+              setUserData({ ...user, user: apiResponseData.updatedUser })
+            );
+            delete apiResponseData.updatedUser; // Don't send this back to Gemini
+          }
           const result2 = await chat.sendMessage([
             {
               functionResponse: {
@@ -162,7 +231,7 @@ export const useFinancialAssistant = () => {
         setIsProcessing(false);
       }
     },
-    [token]
+    [token, dispatch, user]
   );
 
   return {
