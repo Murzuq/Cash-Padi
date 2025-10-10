@@ -67,6 +67,7 @@ const CreateGoalModal = ({ isOpen, onClose, onCreate, isLoading }) => {
         ...(automation !== "none" && { time }),
       },
     });
+    onClose(); // Close the modal on submission
   };
 
   if (!isOpen) return null;

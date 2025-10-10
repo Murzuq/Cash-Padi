@@ -27,38 +27,23 @@ router.post(
     const { to, amount, pin, narration } = req.body;
 
     try {
-      // Using a session for atomicity
-      const session = await User.startSession();
-      session.startTransaction();
-
-      const sender = await User.findById(req.user.id)
-        .select("+pin")
-        .session(session);
+      // NOTE: Transactions require a replica set. This is simplified for local dev.
+      const sender = await User.findById(req.user.id).select("+pin");
       if (!sender) {
-        await session.abortTransaction();
-        session.endSession();
         return res.status(404).json({ message: "Sender not found" });
       }
 
-      const isPinValid = await sender.comparePin(pin);
+      const isPinValid = await sender.matchPin(pin);
       if (!isPinValid) {
-        await session.abortTransaction();
-        session.endSession();
         return res.status(400).json({ message: "Incorrect PIN" });
       }
 
       if (sender.balance < amount) {
-        await session.abortTransaction();
-        session.endSession();
         return res.status(400).json({ message: "Insufficient balance" });
       }
 
-      const recipient = await User.findOne({ accountNumber: to }).session(
-        session
-      );
+      const recipient = await User.findOne({ accountNumber: to });
       if (!recipient) {
-        await session.abortTransaction();
-        session.endSession();
         return res.status(404).json({ message: "Recipient account not found" });
       }
 
@@ -85,11 +70,8 @@ router.post(
       };
       recipient.transactions.unshift(recipientTransaction);
 
-      await sender.save({ session });
-      await recipient.save({ session });
-
-      await session.commitTransaction();
-      session.endSession();
+      await sender.save();
+      await recipient.save();
 
       res.json({ message: "Transfer successful", newBalance: sender.balance });
     } catch (error) {
@@ -130,7 +112,7 @@ router.post(
         return res.status(404).json({ message: "User not found" });
       }
 
-      const isPinValid = await user.comparePin(pin);
+      const isPinValid = await user.matchPin(pin);
       if (!isPinValid) {
         return res.status(400).json({ message: "Incorrect PIN" });
       }
@@ -188,7 +170,7 @@ router.post(
         return res.status(404).json({ message: "User not found" });
       }
 
-      const isPinValid = await user.comparePin(pin);
+      const isPinValid = await user.matchPin(pin);
       if (!isPinValid) {
         return res.status(400).json({ message: "Incorrect PIN" });
       }
@@ -244,7 +226,7 @@ router.post(
       const user = await User.findById(req.user.id).select("+pin");
       if (!user) return res.status(404).json({ message: "User not found" });
 
-      const isPinValid = await user.comparePin(pin);
+      const isPinValid = await user.matchPin(pin);
       if (!isPinValid)
         return res.status(400).json({ message: "Incorrect PIN" });
 

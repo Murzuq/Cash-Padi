@@ -1,5 +1,9 @@
 import express from "express";
-import { verifyAccount } from "../controllers/userController.js";
+import {
+  verifyAccount,
+  getSavingsGoals,
+  createSavingsGoal,
+} from "../controllers/userController.js";
 import auth from "../middleware/auth.js";
 import User from "../models/User.js";
 
@@ -24,5 +28,15 @@ router.get("/me", auth, async (req, res) => {
 
 // This defines the endpoint that your frontend is trying to reach
 router.post("/verify-account", auth, verifyAccount);
+
+// @route   GET /api/users/savings-goals
+// @desc    Get all savings goals for a user
+// @access  Private
+router.get("/savings-goals", auth, getSavingsGoals);
+
+// @route   POST /api/users/savings-goals
+// @desc    Create a new savings goal
+// @access  Private
+router.post("/savings-goals", auth, createSavingsGoal);
 
 export default router;

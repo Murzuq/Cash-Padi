@@ -79,12 +79,12 @@ const GoalProgressCard = ({ goal, onDepositClick, aiNudge }) => {
         <p className="text-emerald-800 font-medium italic">"{aiNudge}"</p>
       </div>
 
-      <button
+      {/* <button
         onClick={onDepositClick}
         className="w-full py-3 px-4 bg-emerald-600 text-white font-semibold rounded-lg shadow-md hover:bg-emerald-700 transition-all text-lg"
       >
         Make a Deposit
-      </button>
+      </button> */}
     </div>
   );
 };

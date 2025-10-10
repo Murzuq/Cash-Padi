@@ -14,6 +14,39 @@ const TransactionSchema = new mongoose.Schema({
   // You could add more fields like a unique transaction ID here
 });
 
+const AutomationSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["none", "daily", "weekly", "monthly"],
+      default: "none",
+    },
+    recurringAmount: { type: Number, default: 0 },
+    config: { type: mongoose.Schema.Types.Mixed, default: {} },
+  },
+  { _id: false }
+);
+
+const SavingsGoalSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  icon: { type: String, required: true },
+  targetAmount: { type: Number, required: true },
+  targetDate: { type: Date, required: true },
+  currentAmount: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: false },
+  automation: { type: AutomationSchema, default: () => ({}) },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  // You can add a transaction history for the goal here if needed
+  // history: [{
+  //   date: { type: Date, default: Date.now },
+  //   amount: { type: Number, required: true },
+  //   type: { type: String, enum: ['deposit', 'withdrawal'], required: true }
+  // }]
+});
+
 const UserSchema = new mongoose.Schema(
   {
     fullName: {
@@ -47,6 +80,7 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
     transactions: [TransactionSchema],
+    savingsGoals: [SavingsGoalSchema],
   },
   { timestamps: true }
 );
@@ -76,8 +110,8 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Method to compare entered PIN with hashed PIN
-UserSchema.methods.comparePin = async function (enteredPin) {
+// Method to match entered PIN with hashed PIN
+UserSchema.methods.matchPin = async function (enteredPin) {
   return await bcrypt.compare(enteredPin, this.pin);
 };
 

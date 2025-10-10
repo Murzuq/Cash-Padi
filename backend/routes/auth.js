@@ -1,5 +1,6 @@
 import express from "express";
 import { check, validationResult } from "express-validator";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
@@ -37,7 +38,7 @@ router.post(
         fullName,
         email,
         password,
-        pin: "1234", // Set a default PIN for new users
+        pin: "1234", // Set a default plain-text PIN. The model will hash it.
       });
 
       await user.save();

@@ -29,6 +29,7 @@ import EmptyState from "../components/goal-saver/EmptyState";
 const GoalSaverPage = () => {
   const navigate = useNavigate();
   const [activeGoal, setActiveGoal] = useState(null); // Will be fetched from backend
+  const [allGoals, setAllGoals] = useState([]); // To store all goals
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isCreatingGoal, setIsCreatingGoal] = useState(false);
   const [isDepositModalOpen, setDepositModalOpen] = useState(false);
@@ -44,51 +45,49 @@ const GoalSaverPage = () => {
   const [aiNudge, setAiNudge] = useState("Analyzing your savings habits...");
   const token = useSelector((state) => state.account.user?.token);
 
+  const fetchSavingsData = async () => {
+    if (!token) return;
+    setIsLoading(true);
+
+    // Fetch goals first
+    try {
+      const goalsResponse = await fetch(`${API_URL}/api/users/savings-goals`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (goalsResponse.ok) {
+        const data = await goalsResponse.json();
+        setAllGoals(data.savingsGoals || []);
+        const foundActiveGoal = data.savingsGoals.find((g) => g.isActive);
+        setActiveGoal(foundActiveGoal || null);
+      } else {
+        console.error("Failed to fetch savings goals.");
+        toast.error("Failed to load savings goals.");
+      }
+    } catch (error) {
+      console.error("Error fetching savings goals:", error);
+      toast.error("Network error fetching goals.");
+    }
+
+    // Then fetch the nudge
+    try {
+      const response = await fetch(`${API_URL}/api/users/savings-nudge`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAiNudge(data.nudge);
+      }
+    } catch (err) {
+      console.error("Failed to fetch AI nudge:", err);
+      setAiNudge("Keep up the great work on your savings goal!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchSavingsData = async () => {
-      if (!token) return;
-      setIsLoading(true);
-
-      // Fetch goals first
-      try {
-        const goalsResponse = await fetch(
-          `${API_URL}/api/users/savings-goals`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (goalsResponse.ok) {
-          const data = await goalsResponse.json();
-          const foundActiveGoal = data.savingsGoals.find((g) => g.isActive);
-          setActiveGoal(foundActiveGoal || null);
-        } else {
-          console.error("Failed to fetch savings goals.");
-          toast.error("Failed to load savings goals.");
-        }
-      } catch (error) {
-        console.error("Error fetching savings goals:", error);
-        toast.error("Network error fetching goals.");
-      }
-
-      // Then fetch the nudge
-      try {
-        const response = await fetch(`${API_URL}/api/users/savings-nudge`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setAiNudge(data.nudge);
-        }
-      } catch (err) {
-        console.error("Failed to fetch AI nudge:", err);
-        setAiNudge("Keep up the great work on your savings goal!");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchSavingsData();
   }, [token]);
 
@@ -110,12 +109,21 @@ const GoalSaverPage = () => {
         },
         body: JSON.stringify({ ...pendingGoalData, pin }),
       });
-      const data = await response.json();
+
       if (response.ok) {
-        setActiveGoal(data.goal); // Set the newly created goal as active
+        const data = await response.json();
+        fetchSavingsData(); // Refetch all data to show the new goal correctly
         toast.success("Savings goal created successfully!");
       } else {
-        toast.error(data.message || "Failed to create goal.");
+        // If the server returned an error, try to parse it as JSON, but fall back to text.
+        const errorText = await response.text();
+        try {
+          const data = JSON.parse(errorText);
+          toast.error(data.message || "Failed to create goal.");
+        } catch (e) {
+          console.error("Server returned non-JSON error:", errorText);
+          toast.error("An unexpected server error occurred.");
+        }
       }
     } catch (error) {
       console.error("Error creating goal:", error);
@@ -244,16 +252,22 @@ const GoalSaverPage = () => {
             {/* Left Column: Goal Management */}
             <div className="space-y-8">
               <h2 className="text-2xl font-semibold text-gray-700 border-b-2 border-emerald-300 pb-2">
-                Active Goal
+                Your Savings Goals
               </h2>
               {isLoading ? (
-                <GoalProgressCardSkeleton />
-              ) : activeGoal ? (
-                <GoalProgressCard
-                  goal={activeGoal}
-                  onDepositClick={() => setDepositModalOpen(true)}
-                  aiNudge={aiNudge}
-                />
+                <>
+                  <GoalProgressCardSkeleton />
+                  <GoalProgressCardSkeleton />
+                </>
+              ) : allGoals.length > 0 ? (
+                allGoals.map((goal) => (
+                  <GoalProgressCard
+                    key={goal._id}
+                    goal={goal}
+                    onDepositClick={() => setDepositModalOpen(true)} // This might need adjustment if you want to deposit into a specific goal
+                    aiNudge={goal.isActive ? aiNudge : null} // Show nudge only for active goal
+                  />
+                ))
               ) : (
                 <EmptyState onActionClick={() => setCreateModalOpen(true)} />
               )}
