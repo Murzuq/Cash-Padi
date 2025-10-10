@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaSpinner } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
@@ -9,6 +10,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -32,6 +34,7 @@ const LoginPage = () => {
     }
 
     try {
+      setIsLoading(true);
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
@@ -62,6 +65,8 @@ const LoginPage = () => {
       setErrors({
         api: "Could not connect to the server. Please try again later.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -145,9 +150,16 @@ const LoginPage = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:shadow-lg hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:shadow-lg hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              Sign in
+              {isLoading ? (
+                <>
+                  <FaSpinner className="animate-spin mr-2" /> Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </button>
           </div>
         </form>
