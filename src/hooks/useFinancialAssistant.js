@@ -108,18 +108,21 @@ export const useFinancialAssistant = () => {
       return;
     }
 
-    const populateVoiceList = () => {
-      const availableVoices = synth.getVoices();
-      setVoices(availableVoices);
+    // Function to populate the voices
+    const loadVoices = () => {
+      const voiceList = synth.getVoices();
+      if (voiceList.length > 0) {
+        setVoices(voiceList);
+      }
     };
 
-    populateVoiceList();
-    if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = populateVoiceList;
-    }
+    // Load voices immediately
+    loadVoices();
 
-    // Cleanup listener on component unmount
-    return () => (synth.onvoiceschanged = null);
+    // If voices are not loaded yet, set up an event listener
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = loadVoices;
+    }
   }, []);
 
   /**
