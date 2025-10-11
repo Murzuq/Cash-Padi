@@ -78,12 +78,23 @@ const tools = [
         },
       },
       {
-        name: "getSavingsTips",
+        name: "getFinancialAdvice",
         description:
-          "Provides personalized tips for saving money based on spending habits.",
+          "Provides a wide range of financial advice in multiple languages (including English, Hausa, Yoruba, and Pidgin) for various user profiles like farmers, traders, and individuals with different literacy levels. The advice should be simple, practical, and easy to understand. Covers topics like budgeting, saving, investing, debt management, and business-specific financial planning.",
         parameters: {
           type: "OBJECT",
-          properties: {},
+          properties: {
+            topic: {
+              type: "STRING",
+              description:
+                "The specific financial topic the user is asking about, e.g., 'saving for a tractor', 'managing market stock', 'creating a first budget'.",
+            },
+            language: {
+              type: "STRING",
+              description:
+                "The language for the advice, e.g., 'English', 'Hausa', 'Yoruba', 'Pidgin'. Defaults to English if not specified. Use language codes like 'ha-NG' for Hausa and 'yo-NG' for Yoruba.",
+            },
+          },
         },
       },
     ],
@@ -108,21 +119,18 @@ export const useFinancialAssistant = () => {
       return;
     }
 
-    // Function to populate the voices
-    const loadVoices = () => {
-      const voiceList = synth.getVoices();
-      if (voiceList.length > 0) {
-        setVoices(voiceList);
-      }
+    const populateVoiceList = () => {
+      const availableVoices = synth.getVoices();
+      setVoices(availableVoices);
     };
 
-    // Load voices immediately
-    loadVoices();
-
-    // If voices are not loaded yet, set up an event listener
+    populateVoiceList();
     if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = loadVoices;
+      synth.onvoiceschanged = populateVoiceList;
     }
+
+    // Cleanup listener on component unmount
+    return () => (synth.onvoiceschanged = null);
   }, []);
 
   /**
@@ -209,7 +217,9 @@ export const useFinancialAssistant = () => {
 
           // If the backend call returned updated user data, dispatch it to Redux
           if (apiResponseData.updatedUser) {
-            dispatch(setUserData({ ...user, ...apiResponseData.updatedUser }));
+            dispatch(
+              setUserData({ ...user, user: apiResponseData.updatedUser })
+            );
             delete apiResponseData.updatedUser; // Don't send this back to Gemini
           }
 
@@ -278,7 +288,9 @@ export const useFinancialAssistant = () => {
 
           // If the backend call returned updated user data, dispatch it to Redux
           if (apiResponseData.updatedUser) {
-            dispatch(setUserData({ ...user, ...apiResponseData.updatedUser }));
+            dispatch(
+              setUserData({ ...user, user: apiResponseData.updatedUser })
+            );
             delete apiResponseData.updatedUser; // Don't send this back to Gemini
           }
           const result2 = await chat.sendMessage([
