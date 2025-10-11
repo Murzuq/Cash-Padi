@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   FaPaperPlane as FaSend,
@@ -25,6 +25,7 @@ const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   const mediaRecorderRef = useRef(null);
+  const audioPlayerRef = useRef(null);
   const [textInput, setTextInput] = useState("");
   // Use Redux's useSelector to get state from the store
   const {
@@ -34,6 +35,7 @@ const HomePage = () => {
     error,
     isProcessing,
   } = useFinancialAssistant();
+  const [isGCTTSProcessing, setGCTTSProcessing] = useState(false);
   const { user } = useSelector((state) => state.account); // Select the top-level user object
 
   // Automatically refetch data when the tab becomes visible
@@ -97,6 +99,52 @@ const HomePage = () => {
     e.preventDefault();
     if (textInput.trim()) {
       processTextCommand(textInput);
+    }
+  };
+
+  const handleGoogleCloudTTS = async () => {
+    const textToSpeak = response || textInput;
+    if (!textToSpeak) {
+      alert("Please enter text or get a response from the assistant first.");
+      return;
+    }
+
+    setGCTTSProcessing(true);
+    const audioPlayer = audioPlayerRef.current;
+    audioPlayer.pause();
+    audioPlayer.removeAttribute("src");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/tts/synthesize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: textToSpeak,
+          // You can add more controls here for voice, pitch, etc.
+          // voiceName: 'en-US-Neural2-C',
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Backend error: ${res.status} - ${errorText}`);
+      }
+
+      const audioBlob = await res.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      audioPlayer.src = audioUrl;
+      audioPlayer.play();
+
+      audioPlayer.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+      };
+    } catch (error) {
+      console.error("Error synthesizing speech with Google Cloud:", error);
+      alert("Failed to synthesize speech. Check console for details.");
+    } finally {
+      setGCTTSProcessing(false);
     }
   };
   // Format the balance from the context
@@ -205,6 +253,19 @@ const HomePage = () => {
                   <p>Error: {error}</p>
                 </div>
               )}
+            </div>
+
+            {/* Audio Player and High-Quality TTS Button */}
+            <div className="mt-4 flex items-center justify-between">
+              <audio ref={audioPlayerRef} className="w-2/3"></audio>
+              <button
+                onClick={handleGoogleCloudTTS}
+                disabled={isGCTTSProcessing || (!response && !textInput)}
+                className="px-3 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                title="Use high-quality Text-to-Speech"
+              >
+                {isGCTTSProcessing ? "Speaking..." : "Speak"}
+              </button>
             </div>
           </div>
 

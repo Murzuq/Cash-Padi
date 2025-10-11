@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { genAI } from "../gemini/config";
 import { setUserData } from "../features/account/accountSlice";
@@ -97,13 +97,73 @@ export const useFinancialAssistant = () => {
   const user = useSelector((state) => state.account.user);
   const token = user?.token;
   const dispatch = useDispatch();
+  const utteranceRef = useRef(null); // Keep a reference to the utterance
+  const [voices, setVoices] = useState([]);
 
+  // Effect to load speech synthesis voices
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+    if (!synth) {
+      console.warn("Text-to-Speech not supported in this browser.");
+      return;
+    }
+
+    const populateVoiceList = () => {
+      const availableVoices = synth.getVoices();
+      setVoices(availableVoices);
+    };
+
+    populateVoiceList();
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = populateVoiceList;
+    }
+
+    // Cleanup listener on component unmount
+    return () => (synth.onvoiceschanged = null);
+  }, []);
+
+  /**
+   * Uses the Web Speech API to speak the provided text.
+   * @param {string} text The text to be spoken.
+   */
+  const speak = (text) => {
+    if ("speechSynthesis" in window && text) {
+      // Cancel any currently speaking utterances
+      window.speechSynthesis.cancel();
+
+      utteranceRef.current = new SpeechSynthesisUtterance(text);
+
+      // --- Voice Selection ---
+      // You can change the priority here to select a different voice.
+      // For a Nigerian accent, you might look for 'en-NG'.
+      // For a British accent, you might look for 'en-GB'.
+      const preferredVoice =
+        voices.find((v) => v.lang === "en-GB" && v.name.includes("Google")) || // Google UK English
+        voices.find((v) => v.lang === "en-NG") || // Any Nigerian voice
+        voices.find((v) => v.lang === "en-GB") || // Any UK voice
+        voices.find((v) => v.name === "Google US English") || // Fallback to US
+        voices.find(
+          (v) => v.lang.startsWith("en-") && v.name.includes("Google")
+        ); // Fallback to any other Google English voice
+
+      if (preferredVoice) {
+        utteranceRef.current.voice = preferredVoice;
+      }
+
+      utteranceRef.current.rate = 0.95; // Slightly slower for clarity
+      utteranceRef.current.pitch = 1;
+      window.speechSynthesis.speak(utteranceRef.current);
+    }
+  };
   const processVoiceCommand = useCallback(
     async (audioData) => {
       if (!audioData) {
         setError("No audio data provided.");
         return;
       }
+
+      // Prime the speech synthesis engine by speaking an empty string.
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
 
       setIsProcessing(true);
       setResponse("");
@@ -162,10 +222,14 @@ export const useFinancialAssistant = () => {
             },
           ]);
 
-          setResponse(result2.response.text());
+          const responseText = result2.response.text();
+          setResponse(responseText);
+          speak(responseText);
         } else {
           // It's a standard text response
-          setResponse(modelResponse.text());
+          const responseText = modelResponse.text();
+          setResponse(responseText);
+          speak(responseText);
         }
       } catch (e) {
         console.error("Error processing voice command:", e);
@@ -174,7 +238,7 @@ export const useFinancialAssistant = () => {
         setIsProcessing(false);
       }
     },
-    [token, dispatch, user]
+    [token, dispatch, user, voices, speak]
   );
 
   const processTextCommand = useCallback(
@@ -184,12 +248,18 @@ export const useFinancialAssistant = () => {
         return;
       }
 
+      // Prime the speech synthesis engine by speaking an empty string.
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+
       setIsProcessing(true);
       setResponse("");
       setError("");
 
       try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro", tools });
+        const model = genAI.getGenerativeModel({
+          model: "gemini-2.5-pro",
+          tools,
+        });
         const chat = model.startChat();
 
         const result = await chat.sendMessage(prompt);
@@ -220,9 +290,13 @@ export const useFinancialAssistant = () => {
               },
             },
           ]);
-          setResponse(result2.response.text());
+          const responseText = result2.response.text();
+          setResponse(responseText);
+          speak(responseText);
         } else {
-          setResponse(modelResponse.text());
+          const responseText = modelResponse.text();
+          setResponse(responseText);
+          speak(responseText);
         }
       } catch (e) {
         console.error("Error processing text command:", e);
@@ -231,7 +305,7 @@ export const useFinancialAssistant = () => {
         setIsProcessing(false);
       }
     },
-    [token, dispatch, user]
+    [token, dispatch, user, voices, speak]
   );
 
   return {

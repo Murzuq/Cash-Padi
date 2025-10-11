@@ -5,7 +5,8 @@ import mongoose from "mongoose";
 
 import authRoutes from "./routes/auth.js";
 import transactionRoutes from "./routes/transactions.js";
-import userRoutes from "./routes/userRoutes.js"; // 1. Import the new user routes
+import userRoutes from "./routes/userRoutes.js";
+import ttsRoutes from "./routes/ttsRoutes.js"; // 1. Import the new TTS routes
 
 // Load environment variables
 dotenv.config();
@@ -14,7 +15,8 @@ const app = express();
 
 // Configure CORS to allow requests from your frontend
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  // origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: "http://localhost:5173",
   optionsSuccessStatus: 200,
 };
 
@@ -45,3 +47,4 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/users", userRoutes); // 2. Tell Express to use the user routes
+app.use("/api/tts", ttsRoutes); // 2. Tell Express to use the TTS routes
