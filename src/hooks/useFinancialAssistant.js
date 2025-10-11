@@ -242,14 +242,16 @@ export const useFinancialAssistant = () => {
             },
           ]);
 
-          const responseText = result2.response.text();
+          // Sanitize response to remove markdown asterisks
+          const responseText = result2.response.text().replace(/\*/g, "");
           setResponse(responseText);
-          speak(responseText);
+          speak(responseText, apiResponseData.language || "en-US");
         } else {
           // It's a standard text response
-          const responseText = modelResponse.text();
+          // Sanitize response to remove markdown asterisks
+          const responseText = modelResponse.text().replace(/\*/g, "");
           setResponse(responseText);
-          speak(responseText);
+          speak(responseText); // Default to English for general chat
         }
       } catch (e) {
         console.error("Error processing voice command:", e);
@@ -310,13 +312,15 @@ export const useFinancialAssistant = () => {
               },
             },
           ]);
-          const responseText = result2.response.text();
+          // Sanitize response to remove markdown asterisks
+          const responseText = result2.response.text().replace(/\*/g, "");
           setResponse(responseText);
-          speak(responseText);
+          speak(responseText, apiResponseData.language || "en-US");
         } else {
-          const responseText = modelResponse.text();
+          // Sanitize response to remove markdown asterisks
+          const responseText = modelResponse.text().replace(/\*/g, "");
           setResponse(responseText);
-          speak(responseText);
+          speak(responseText); // Default to English for general chat
         }
       } catch (e) {
         console.error("Error processing text command:", e);
