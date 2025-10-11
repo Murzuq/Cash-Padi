@@ -180,6 +180,26 @@ You'll need to create two `.env` files for this project.
     ```
     The application will be available at `http://localhost:5173`.
 
+### Connecting Frontend to Backend
+
+The frontend needs to know the URL of your backend API. This is configured in `src/config.js`.
+
+**For local development:**
+
+Make sure the `API_URL` points to your local server by uncommenting the local URL and commenting out the production one.
+
+```javascript
+// Online Server Hosting
+// export const API_URL = "https://cash-padi.onrender.com";
+
+// Local Server Hosting
+export const API_URL = "http://localhost:5000";
+```
+
+**For production/deployment:**
+
+When deploying your application, ensure the `API_URL` points to your live backend server on Render.
+
 ## API Endpoints
 
 The backend provides a RESTful API for handling user authentication, transactions, and data retrieval. All protected routes require a `Bearer` token in the `Authorization` header.
