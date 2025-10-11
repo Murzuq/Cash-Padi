@@ -209,9 +209,7 @@ export const useFinancialAssistant = () => {
 
           // If the backend call returned updated user data, dispatch it to Redux
           if (apiResponseData.updatedUser) {
-            dispatch(
-              setUserData({ ...user, user: apiResponseData.updatedUser })
-            );
+            dispatch(setUserData({ ...user, ...apiResponseData.updatedUser }));
             delete apiResponseData.updatedUser; // Don't send this back to Gemini
           }
 
@@ -280,9 +278,7 @@ export const useFinancialAssistant = () => {
 
           // If the backend call returned updated user data, dispatch it to Redux
           if (apiResponseData.updatedUser) {
-            dispatch(
-              setUserData({ ...user, user: apiResponseData.updatedUser })
-            );
+            dispatch(setUserData({ ...user, ...apiResponseData.updatedUser }));
             delete apiResponseData.updatedUser; // Don't send this back to Gemini
           }
           const result2 = await chat.sendMessage([
