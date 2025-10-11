@@ -190,7 +190,7 @@ Make sure the `API_URL` points to your local server by uncommenting the local UR
 
 ```javascript
 // Online Server Hosting
-// export const API_URL = "https://cash-padi.onrender.com";
+export const API_URL = "https://cash-padi.onrender.com";
 
 // Local Server Hosting
 export const API_URL = "http://localhost:5000";
