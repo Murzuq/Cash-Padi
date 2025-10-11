@@ -25,6 +25,7 @@ const HomePage = () => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   const mediaRecorderRef = useRef(null);
+  const [isRecording, setIsRecording] = useState(false);
   const audioPlayerRef = useRef(null);
   const [textInput, setTextInput] = useState("");
   // Use Redux's useSelector to get state from the store
@@ -80,6 +81,7 @@ const HomePage = () => {
       };
 
       mediaRecorderRef.current.start();
+      setIsRecording(true);
     } catch (err) {
       console.error("Error accessing microphone:", err);
       // You might want to set an error state here to inform the user
@@ -92,6 +94,7 @@ const HomePage = () => {
       mediaRecorderRef.current.state === "recording"
     ) {
       mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
   };
 
@@ -211,11 +214,23 @@ const HomePage = () => {
                 onTouchStart={handleStartRecording}
                 onTouchEnd={handleStopRecording}
                 disabled={isProcessing}
-                className="w-full flex flex-col items-center justify-center text-center text-green-800 hover:bg-green-100 p-4 rounded-md transition duration-300 disabled:opacity-50 disabled:cursor-wait"
+                className={`w-full flex flex-col items-center justify-center text-center p-4 rounded-md transition-all duration-300 disabled:opacity-50 disabled:cursor-wait ${
+                  isRecording
+                    ? "bg-green-200 text-green-900 ring-4 ring-green-300"
+                    : "bg-green-50 text-green-800 hover:bg-green-100 border border-green-200"
+                }`}
               >
-                <FaMicrophone className="text-4xl mb-2" />
+                <FaMicrophone
+                  className={`text-4xl mb-2 transition-transform duration-200 ${
+                    isRecording ? "scale-110 animate-pulse" : ""
+                  }`}
+                />
                 <span className="font-semibold">
-                  {isProcessing ? "Processing..." : "Hold to Speak"}
+                  {isProcessing
+                    ? "Processing..."
+                    : isRecording
+                    ? "Listening..."
+                    : "Hold to Speak"}
                 </span>
                 <span className="text-sm">(Soro Bayi)</span>
               </button>
@@ -256,7 +271,7 @@ const HomePage = () => {
             </div>
 
             {/* Audio Player and High-Quality TTS Button */}
-            <div className="mt-4 flex items-center justify-between">
+            {/* <div className="mt-4 flex items-center justify-between">
               <audio ref={audioPlayerRef} className="w-2/3"></audio>
               <button
                 onClick={handleGoogleCloudTTS}
@@ -266,7 +281,7 @@ const HomePage = () => {
               >
                 {isGCTTSProcessing ? "Speaking..." : "Speak"}
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* Quick Actions */}
@@ -317,7 +332,7 @@ const HomePage = () => {
               <h2 className="text-xl font-bold text-gray-800">
                 Recent Activity
               </h2>
-              {transactions.length > 3 && (
+              {transactions.length > 1 && (
                 <Link
                   to="/history"
                   className="text-sm font-semibold text-green-600 hover:text-green-800 transition-colors"
@@ -340,16 +355,16 @@ const HomePage = () => {
         {/* Right Section: Financial Tools */}
         <div className="lg:col-span-1 space-y-8">
           {/* Pay Bill by Picture */}
-          <div className="bg-white p-6 rounded-xl shadow-lg flex items-start space-x-4">
-            <div className="bg-green-100 p-3 rounded-full">
-              <FaRegMoneyBillAlt className="text-2xl text-green-700" />
+          <div className="bg-gray-200 p-6 rounded-xl shadow-lg flex items-start space-x-4 opacity-75 cursor-not-allowed">
+            <div className="bg-gray-300 p-3 rounded-full">
+              <FaRegMoneyBillAlt className="text-2xl text-gray-500" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-800">
-                Pay Bill by Picture
+              <h3 className="text-lg font-bold text-gray-500">
+                Pay Bill by Picture (Coming Soon)
               </h3>
-              <p className="text-gray-600 mt-1">
-                Scan utility bills or invoices instantly.
+              <p className="text-gray-500 mt-1">
+                This feature is not yet available.
               </p>
             </div>
           </div>

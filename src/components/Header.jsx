@@ -28,29 +28,6 @@ const Header = () => {
           Cash Padi
         </Link>
 
-        <nav className="hidden md:flex space-x-6">
-          <Link to="/" className="hover:text-green-400 transition duration-300">
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className="hover:text-green-400 transition duration-300"
-          >
-            About
-          </Link>
-          <Link
-            to="/services"
-            className="hover:text-green-400 transition duration-300"
-          >
-            Services
-          </Link>
-          <Link
-            to="/contact"
-            className="hover:text-green-400 transition duration-300"
-          >
-            Contact
-          </Link>
-        </nav>
         <div className="hidden md:flex items-center space-x-4">
           {isLoggedIn ? (
             <button
@@ -111,34 +88,6 @@ const Header = () => {
 
       {isOpen && (
         <nav className="md:hidden mt-4">
-          <Link
-            to="/"
-            className="block py-2 px-4 text-sm hover:bg-gray-700"
-            onClick={toggleMenu}
-          >
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className="block py-2 px-4 text-sm hover:bg-gray-700"
-            onClick={toggleMenu}
-          >
-            About
-          </Link>
-          <Link
-            to="/services"
-            className="block py-2 px-4 text-sm hover:bg-gray-700"
-            onClick={toggleMenu}
-          >
-            Services
-          </Link>
-          <Link
-            to="/contact"
-            className="block py-2 px-4 text-sm hover:bg-gray-700"
-            onClick={toggleMenu}
-          >
-            Contact
-          </Link>
           {isLoggedIn ? (
             <button
               onClick={() => {
