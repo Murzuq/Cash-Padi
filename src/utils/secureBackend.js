@@ -157,6 +157,20 @@ export const secureBackendCall = async (functionName, args, token) => {
         tip: randomTip,
       });
     }
+    case "getSpendingHistory": {
+      const user = await refetchUserData(token);
+      if (!user || !user.transactions) {
+        return JSON.stringify({
+          status: "error",
+          message: "Could not retrieve transaction history.",
+        });
+      }
+      // Return only the transactions for the AI to analyze
+      return JSON.stringify({
+        status: "success",
+        transactions: user.transactions,
+      });
+    }
     default:
       return JSON.stringify({ status: "error", message: "Unknown function." });
   }

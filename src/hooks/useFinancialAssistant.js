@@ -80,7 +80,7 @@ const tools = [
       {
         name: "getFinancialAdvice",
         description:
-          "Provides a wide range of financial advice in multiple languages (including English, Hausa, Yoruba, and Pidgin) for various user profiles like farmers, traders, and individuals with different literacy levels. The advice should be simple, practical, and easy to understand. Covers topics like budgeting, saving, investing, debt management, and business-specific financial planning.",
+          "Provides a wide range of financial advice in multiple languages (including English, Hausa, Yoruba, and Pidgin) for various user profiles and can give advice based on spending data if available. The advice should be simple, practical, and easy to understand. Covers topics like budgeting, saving, investing, debt management, and business-specific financial planning.",
         parameters: {
           type: "OBJECT",
           properties: {
@@ -95,6 +95,15 @@ const tools = [
                 "The language for the advice, e.g., 'English', 'Hausa', 'Yoruba', 'Pidgin'. Defaults to English if not specified. Use language codes like 'ha-NG' for Hausa and 'yo-NG' for Yoruba.",
             },
           },
+        },
+      },
+      {
+        name: "getSpendingHistory",
+        description:
+          "Retrieves the user's recent transaction history to analyze their spending habits and provide advice.",
+        parameters: {
+          type: "OBJECT",
+          properties: {},
         },
       },
     ],
