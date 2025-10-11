@@ -15,8 +15,10 @@ const app = express();
 
 // Configure CORS to allow requests from your frontend
 const corsOptions = {
-  // origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173", // Your local frontend
+    "https://cashpadi.netlify.app", // Your deployed frontend
+  ],
   optionsSuccessStatus: 200,
 };
 
