@@ -11,7 +11,6 @@ import {
   FaSpinner, // Assuming you might want this for the modal
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import PinModal from "../components/PinModal";
 import { API_URL } from "../config";
@@ -61,11 +60,9 @@ const GoalSaverPage = () => {
         setActiveGoal(foundActiveGoal || null);
       } else {
         console.error("Failed to fetch savings goals.");
-        toast.error("Failed to load savings goals.");
       }
     } catch (error) {
       console.error("Error fetching savings goals:", error);
-      toast.error("Network error fetching goals.");
     }
 
     // Then fetch the nudge
@@ -113,16 +110,14 @@ const GoalSaverPage = () => {
       if (response.ok) {
         const data = await response.json();
         fetchSavingsData(); // Refetch all data to show the new goal correctly
-        toast.success("Savings goal created successfully!");
       } else {
         // If the server returned an error, try to parse it as JSON, but fall back to text.
         const errorText = await response.text();
         try {
           const data = JSON.parse(errorText);
-          toast.error(data.message || "Failed to create goal.");
+          console.error(data.message || "Failed to create goal.");
         } catch (e) {
           console.error("Server returned non-JSON error:", errorText);
-          toast.error("An unexpected server error occurred.");
         }
       }
     } catch (error) {
@@ -137,7 +132,7 @@ const GoalSaverPage = () => {
 
   const handleDeposit = async (amount) => {
     if (!activeGoal) {
-      toast.error("No active goal to deposit into.");
+      console.error("No active goal to deposit into.");
       return;
     }
     setIsDepositing(true);
@@ -157,13 +152,11 @@ const GoalSaverPage = () => {
       if (response.ok) {
         setActiveGoal(data.goal); // Update active goal with new amount
         setDepositModalOpen(false);
-        toast.success("Deposit successful!");
       } else {
-        toast.error(data.message || "Deposit failed.");
+        console.error(data.message || "Deposit failed.");
       }
     } catch (error) {
       console.error("Error depositing:", error);
-      toast.error("Network error during deposit.");
     } finally {
       setIsDepositing(false);
     }
@@ -193,13 +186,9 @@ const GoalSaverPage = () => {
         currency: "NGN",
       }).format(pendingLockData.amount);
 
-      toast.success(
-        `${formattedAmount} has been locked for ${pendingLockData.duration} months!`
-      );
       // In a real app, you would refetch the locked funds list here.
     } catch (error) {
       console.error("Error locking funds:", error);
-      toast.error("An error occurred while locking funds.");
     } finally {
       setIsLocking(false);
       setIsPinModalOpenForLock(false);
